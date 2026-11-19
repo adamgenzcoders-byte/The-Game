@@ -9,6 +9,7 @@ import Link from 'next/link';
 
 export default function AdminPage() {
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminToken, setAdminToken] = useState('');
   const [password, setPassword] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
   const [loginError, setLoginError] = useState('');
@@ -22,6 +23,11 @@ export default function AdminPage() {
   const [teams, setTeams] = useState([]);
   const [content, setContent] = useState(null);
   const [stageData, setStageData] = useState(null);
+
+  // Announcement Broadcast State
+  const [announcementText, setAnnouncementText] = useState('');
+  const [announcementEra, setAnnouncementEra] = useState('');
+  const [announcementLoading, setAnnouncementLoading] = useState(false);
 
   // Content Editor Sub-tab
   const [contentSubTab, setContentSubTab] = useState('levels'); // 'settings' | 'eras' | 'levels' | 'variants' | 'booths' | 'engineers'
@@ -43,6 +49,7 @@ export default function AdminPage() {
         const data = await res.json();
         if (data.isAdmin) {
           setIsAdmin(true);
+          setAdminToken(token);
         }
       } catch (err) {
         console.error(err);
@@ -129,6 +136,7 @@ export default function AdminPage() {
       }
 
       localStorage.setItem('admin_token', data.token);
+      setAdminToken(data.token);
       setIsAdmin(true);
     } catch (err) {
       setLoginError('فشل الاتصال بالخادم');
@@ -139,7 +147,28 @@ export default function AdminPage() {
 
   function handleLogout() {
     localStorage.removeItem('admin_token');
+    setAdminToken('');
     setIsAdmin(false);
+  }
+
+  // Announcement Handlers
+  async function handleSendAnnouncement(e) {
+    if (e) e.preventDefault();
+    if (!announcementText.trim()) return;
+    setAnnouncementLoading(true);
+    try {
+      await triggerJourneyAction('SEND_ANNOUNCEMENT', {
+        text: announcementText.trim(),
+        eraId: announcementEra ? Number(announcementEra) : null,
+      });
+      setAnnouncementText('');
+    } finally {
+      setAnnouncementLoading(false);
+    }
+  }
+
+  async function handleClearAnnouncement() {
+    await triggerJourneyAction('CLEAR_ANNOUNCEMENT');
   }
 
   // Journey Action Handler
@@ -540,6 +569,82 @@ export default function AdminPage() {
                   </div>
                 </div>
               ))}
+            </div>
+
+            {/* Announcement Broadcast Box */}
+            <div className="p-6 rounded-2xl bg-[#121620] border border-amber-900/50 space-y-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">📢</span>
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-100">
+                      بث إعلان عاجل من الجيم ماستر (Pop-up Announcement)
+                    </h3>
+                    <p className="text-xs text-slate-400">
+                      يظهر فوراً كرسالة منبثقة عاجلة مع صوت تنبيهي على شاشات الطلاب (في صالة الانتظار وأثناء اللعب)
+                    </p>
+                  </div>
+                </div>
+                {journeyData?.announcement && (
+                  <button
+                    type="button"
+                    onClick={handleClearAnnouncement}
+                    className="px-3 py-1.5 rounded-lg bg-rose-950 border border-rose-800 text-rose-300 hover:bg-rose-900 text-xs font-bold transition"
+                  >
+                    مسح الإعلان النشط ✖️
+                  </button>
+                )}
+              </div>
+
+              {journeyData?.announcement && (
+                <div className="p-3.5 rounded-xl bg-amber-950/40 border border-amber-600/50 space-y-1">
+                  <div className="flex items-center justify-between text-[11px] font-bold text-amber-400">
+                    <span>الإعلان المعروض على هواتف الطلاب حالياً:</span>
+                    <span>
+                      {journeyData.announcement.eraId
+                        ? `موجه لعصر معين (#${journeyData.announcement.eraId})`
+                        : 'موجه لجميع الفرق والعصور'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-200 font-semibold leading-relaxed">
+                    {journeyData.announcement.text}
+                  </p>
+                </div>
+              )}
+
+              <form onSubmit={handleSendAnnouncement} className="space-y-3">
+                <textarea
+                  rows={2}
+                  value={announcementText}
+                  onChange={(e) => setAnnouncementText(e.target.value)}
+                  placeholder="اكتب نص الإعلان المنبثق هنا (مثال: تنبيه لجميع الفرق: متبقي 15 دقيقة، أو تعليمات خاصة بعصر معين)..."
+                  className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600 placeholder:text-slate-500"
+                />
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-slate-400 font-medium">الجمهور المستهدف:</span>
+                    <select
+                      value={announcementEra}
+                      onChange={(e) => setAnnouncementEra(e.target.value)}
+                      className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-200 text-xs focus:outline-none focus:border-amber-600"
+                    >
+                      <option value="">📢 جميع العصور والفرق (عام)</option>
+                      <option value="1">👑 العصر الفرعوني فقط</option>
+                      <option value="2">📜 مصر البطلمية فقط</option>
+                      <option value="3">⚔️ مصر الرومانية فقط</option>
+                      <option value="4">🏺 العصر الإسلامي فقط</option>
+                    </select>
+                  </div>
+
+                  <button
+                    type="submit"
+                    disabled={announcementLoading || !announcementText.trim()}
+                    className="px-5 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 disabled:opacity-50 text-slate-950 font-bold text-xs transition shadow-md shadow-amber-600/20"
+                  >
+                    {announcementLoading ? 'جاري الإرسال...' : 'إرسال الإعلان المنبثق 📢'}
+                  </button>
+                </div>
+              </form>
             </div>
           </div>
         )}
@@ -1038,10 +1143,15 @@ export default function AdminPage() {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
               <a
-                href="/api/admin/print/qr"
+                href={`/api/admin/print/qr?key=${encodeURIComponent(adminToken || 'AD@776@z776')}`}
                 target="_blank"
                 rel="noreferrer"
-                className="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-600 transition block space-y-2 group"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const token = adminToken || localStorage.getItem('admin_token') || 'AD@776@z776';
+                  window.open(`/api/admin/print/qr?key=${encodeURIComponent(token)}`, '_blank');
+                }}
+                className="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-600 transition block space-y-2 group cursor-pointer"
               >
                 <div className="text-3xl">🖨️</div>
                 <h3 className="text-sm font-bold text-slate-100 group-hover:text-amber-400">
@@ -1056,10 +1166,15 @@ export default function AdminPage() {
               </a>
 
               <a
-                href="/api/admin/print/booths"
+                href={`/api/admin/print/booths?key=${encodeURIComponent(adminToken || 'AD@776@z776')}`}
                 target="_blank"
                 rel="noreferrer"
-                className="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-600 transition block space-y-2 group"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const token = adminToken || localStorage.getItem('admin_token') || 'AD@776@z776';
+                  window.open(`/api/admin/print/booths?key=${encodeURIComponent(token)}`, '_blank');
+                }}
+                className="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-600 transition block space-y-2 group cursor-pointer"
               >
                 <div className="text-3xl">🎪</div>
                 <h3 className="text-sm font-bold text-slate-100 group-hover:text-amber-400">
@@ -1074,10 +1189,15 @@ export default function AdminPage() {
               </a>
 
               <a
-                href="/api/admin/print/backup"
+                href={`/api/admin/print/backup?key=${encodeURIComponent(adminToken || 'AD@776@z776')}`}
                 target="_blank"
                 rel="noreferrer"
-                className="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-600 transition block space-y-2 group"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const token = adminToken || localStorage.getItem('admin_token') || 'AD@776@z776';
+                  window.open(`/api/admin/print/backup?key=${encodeURIComponent(token)}`, '_blank');
+                }}
+                className="p-5 rounded-xl bg-slate-900 border border-slate-800 hover:border-amber-600 transition block space-y-2 group cursor-pointer"
               >
                 <div className="text-3xl">📋</div>
                 <h3 className="text-sm font-bold text-slate-100 group-hover:text-amber-400">

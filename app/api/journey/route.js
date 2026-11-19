@@ -50,6 +50,11 @@ export async function GET() {
       durationMinutes: gameState ? (gameState.duration_minutes || 180) : 180,
       curseText: gameState ? gameState.curse_text : '',
       safetyBanner: gameState ? gameState.safety_banner : '',
+      announcement: gameState?.announcement_text ? {
+        text: gameState.announcement_text,
+        eraId: gameState.announcement_era_id !== null && gameState.announcement_era_id !== undefined ? Number(gameState.announcement_era_id) : null,
+        at: gameState.announcement_at || null,
+      } : null,
       eraStats,
     });
   } catch (err) {
@@ -184,6 +189,33 @@ export async function POST(request) {
       return NextResponse.json({ success: true });
     }
 
+    if (action === 'SEND_ANNOUNCEMENT') {
+      const text = (body.text || '').trim();
+      const eraId = (body.eraId !== undefined && body.eraId !== null && body.eraId !== '') ? Number(body.eraId) : null;
+      const now = Date.now();
+
+      if (!text) {
+        return NextResponse.json({ error: 'نص الإعلان مطلوب' }, { status: 400 });
+      }
+
+      await execute(
+        `UPDATE game_state SET announcement_text = ?, announcement_era_id = ?, announcement_at = ?, updated_at = datetime('now') WHERE id = 1`,
+        [text, eraId, now]
+      );
+
+      await logEvent(null, null, 'ANNOUNCEMENT_SENT', { text, eraId, at: now });
+      return NextResponse.json({ success: true, announcement: { text, eraId, at: now } });
+    }
+
+    if (action === 'CLEAR_ANNOUNCEMENT') {
+      await execute(
+        `UPDATE game_state SET announcement_text = NULL, announcement_era_id = NULL, announcement_at = NULL, updated_at = datetime('now') WHERE id = 1`
+      );
+
+      await logEvent(null, null, 'ANNOUNCEMENT_CLEARED');
+      return NextResponse.json({ success: true });
+    }
+
     if (action === 'RESET') {
       // Clear all team/game data and re-seed
       await execute(`DELETE FROM team_level_progress`);
@@ -197,6 +229,9 @@ export async function POST(request) {
           state = 'LOBBY',
           start_at_epoch = NULL,
           end_at_epoch = NULL,
+          announcement_text = NULL,
+          announcement_era_id = NULL,
+          announcement_at = NULL,
           updated_at = datetime('now')
         WHERE id = 1
       `);

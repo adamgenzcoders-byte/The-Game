@@ -28,14 +28,15 @@ export async function GET(request) {
     `);
 
     // Fetch members for each team
-    const members = await query(`SELECT id, name, team_id, is_leader FROM members WHERE team_id IS NOT NULL`);
+    const members = await query(`SELECT id, name, team_id, is_leader, can_submit FROM members WHERE team_id IS NOT NULL`);
     const membersByTeam = {};
     for (const m of members) {
       if (!membersByTeam[m.team_id]) membersByTeam[m.team_id] = [];
       membersByTeam[m.team_id].push({
         id: m.id,
         name: m.name,
-        is_leader: Boolean(m.is_leader)
+        is_leader: Boolean(m.is_leader),
+        can_submit: Boolean(m.is_leader || m.can_submit),
       });
     }
 
@@ -102,9 +103,9 @@ export async function POST(request) {
       [teamId, teamNumber, name, icon, now]
     );
 
-    // Make current member the leader
+    // Make current member the leader (always a writer)
     await execute(
-      `UPDATE members SET team_id = ?, is_leader = 1 WHERE id = ?`,
+      `UPDATE members SET team_id = ?, is_leader = 1, can_submit = 1 WHERE id = ?`,
       [teamId, member.id]
     );
 

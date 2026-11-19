@@ -18,7 +18,7 @@ export async function GET(request) {
     let teamMembers = [];
     if (member.team_id) {
       teamMembers = await query(
-        `SELECT id, name, is_leader, device_token FROM members WHERE team_id = ? ORDER BY is_leader DESC, name ASC`,
+        `SELECT id, name, is_leader, can_submit, device_token FROM members WHERE team_id = ? ORDER BY is_leader DESC, name ASC`,
         [member.team_id]
       );
     }
@@ -29,6 +29,7 @@ export async function GET(request) {
         id: member.id,
         name: member.name,
         is_leader: Boolean(member.is_leader),
+        can_submit: Boolean(member.is_leader || member.can_submit),
         team_id: member.team_id,
         team_number: member.team_number,
         team_name: member.team_name,
@@ -49,6 +50,7 @@ export async function GET(request) {
         id: m.id,
         name: m.name,
         is_leader: Boolean(m.is_leader),
+        can_submit: Boolean(m.is_leader || m.can_submit),
       })),
     });
   } catch (err) {

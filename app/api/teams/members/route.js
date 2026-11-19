@@ -62,3 +62,74 @@ export async function DELETE(request) {
   }
 }
 
+export async function PATCH(request) {
+  try {
+    await initSchema();
+    const currentMember = await getMemberFromRequest(request);
+    if (!currentMember) {
+      return NextResponse.json({ error: 'غير مصرح' }, { status: 401 });
+    }
+
+    if (!currentMember.is_leader) {
+      return NextResponse.json({ error: 'فقط قائد الفريق يمكنه تحديد أدوار الأعضاء' }, { status: 403 });
+    }
+
+    const body = await request.json();
+    const { targetMemberId, canSubmit } = body;
+
+    if (!targetMemberId) {
+      return NextResponse.json({ error: 'معرف العضو مطلوب' }, { status: 400 });
+    }
+
+    // Verify target belongs to the same team
+    const targetMember = await queryOne(
+      `SELECT * FROM members WHERE id = ? AND team_id = ?`,
+      [targetMemberId, currentMember.team_id]
+    );
+
+    if (!targetMember) {
+      return NextResponse.json({ error: 'العضو غير موجود في فريقك' }, { status: 404 });
+    }
+
+    if (targetMember.is_leader) {
+      return NextResponse.json({ error: 'قائد الفريق كاتب دائماً ولا يمكن تغيير دوره' }, { status: 400 });
+    }
+
+    // Rule: Leader + 1 chosen member = 2 writers max!
+    if (canSubmit) {
+      // Set all other non-leader members to viewer (can_submit = 0)
+      await execute(
+        `UPDATE members SET can_submit = 0 WHERE team_id = ? AND is_leader = 0`,
+        [currentMember.team_id]
+      );
+      // Set target to writer
+      await execute(
+        `UPDATE members SET can_submit = 1 WHERE id = ?`,
+        [targetMemberId]
+      );
+    } else {
+      await execute(
+        `UPDATE members SET can_submit = 0 WHERE id = ?`,
+        [targetMemberId]
+      );
+    }
+
+    // Always ensure leader has can_submit = 1
+    await execute(
+      `UPDATE members SET can_submit = 1 WHERE team_id = ? AND is_leader = 1`,
+      [currentMember.team_id]
+    );
+
+    await logEvent(currentMember.team_id, currentMember.id, 'WRITER_ROLE_UPDATED', {
+      targetMemberId,
+      canSubmit: Boolean(canSubmit),
+    });
+
+    return NextResponse.json({ success: true, targetMemberId, canSubmit: Boolean(canSubmit) });
+  } catch (err) {
+    console.error('Member PATCH error:', err);
+    return NextResponse.json({ error: 'Server error' }, { status: 500 });
+  }
+}
+
+

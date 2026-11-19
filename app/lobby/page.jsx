@@ -17,14 +17,39 @@ export default function LobbyPage() {
   const [countdownPhase, setCountdownPhase] = useState(null); // 'NORMAL' | 'PAUSE_MESSAGE' | 'LOUD' | 'LAUNCH'
   const [countdownValue, setCountdownValue] = useState(null);
   const [serverClockOffset, setServerClockOffset] = useState(0);
+  const [announcement, setAnnouncement] = useState(null);
+  const [dismissedAnnouncementAt, setDismissedAnnouncementAt] = useState(null);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
   const lastPlayedRef = useRef(null);
+  const lastAlertAtRef = useRef(null);
   const redirectingRef = useRef(false);
 
   // Audio Context Ref for Synthesizer Beeps
   const audioCtxRef = useRef(null);
+
+  const playAlertSound = () => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+      [659.25, 880].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.15);
+        osc.stop(ctx.currentTime + i * 0.15 + 0.3);
+      });
+    } catch (e) {}
+  };
 
   // Play Kahoot-style Tick Beep (Web Audio API)
   const playTickSound = (sec, isLoud = false) => {
@@ -162,6 +187,23 @@ export default function LobbyPage() {
           setCountdownValue(null);
         }
 
+        // Live Announcement check
+        if (journeyData.announcement && journeyData.announcement.text) {
+          const targetEra = journeyData.announcement.eraId;
+          const isTargeted = !targetEra || targetEra === data.member.era_id;
+          if (isTargeted) {
+            setAnnouncement(journeyData.announcement);
+            if (journeyData.announcement.at && lastAlertAtRef.current !== journeyData.announcement.at) {
+              lastAlertAtRef.current = journeyData.announcement.at;
+              playAlertSound();
+            }
+          } else {
+            setAnnouncement(null);
+          }
+        } else {
+          setAnnouncement(null);
+        }
+
         // If leader, fetch pending requests
         if (data.member.is_leader) {
           const reqRes = await fetch('/api/teams/join', {
@@ -297,6 +339,42 @@ export default function LobbyPage() {
     }
   }
 
+  async function handleToggleWriterRole(targetMemberId, currentCanSubmit) {
+    setActionLoading(true);
+    setError('');
+    const token = localStorage.getItem('device_token');
+
+    try {
+      const res = await fetch('/api/teams/members', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          targetMemberId,
+          canSubmit: !currentCanSubmit,
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.error || 'تعذر تحديث الدور');
+      } else {
+        // Refresh team members
+        const authRes = await fetch('/api/auth/member', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const authData = await authRes.json();
+        setTeamMembers(authData.teamMembers || []);
+      }
+    } catch (e) {
+      setError('خطأ في الاتصال بالخادم');
+    } finally {
+      setActionLoading(false);
+    }
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4 bg-[#0a0c10]">
@@ -307,6 +385,31 @@ export default function LobbyPage() {
 
   return (
     <main className="min-h-screen max-w-lg mx-auto p-4 flex flex-col justify-between bg-[#0a0c10] text-slate-200 relative">
+      {/* GAME MASTER ANNOUNCEMENT POP-UP MODAL */}
+      {announcement && announcement.text && announcement.at !== dismissedAnnouncementAt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in select-none">
+          <div className="w-full max-w-sm p-6 rounded-2xl bg-[#121620] border-2 border-amber-500 shadow-2xl shadow-amber-500/20 text-center space-y-4">
+            <div className="text-5xl animate-bounce">📢</div>
+            <div className="inline-block px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500 text-amber-400 text-xs font-black tracking-wider">
+              تنبيه عاجل من الجيم ماستر
+            </div>
+            <h3 className="text-base font-black text-slate-100 leading-snug">
+              {announcement.eraId ? `إعلان خاص بالمسار التاريخي` : `إعلان عام لجميع الفرق`}
+            </h3>
+            <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-semibold text-slate-200 leading-relaxed text-right max-h-48 overflow-y-auto">
+              {announcement.text}
+            </div>
+            <button
+              type="button"
+              onClick={() => setDismissedAnnouncementAt(announcement.at)}
+              className="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-xs transition shadow-md shadow-amber-600/30"
+            >
+              فهمت الرسالة (إغلاق) ✓
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* KAHOOT-STYLE 30..12 -> 4s PAUSE MESSAGE -> 11..0 SYNCED COUNTDOWN OVERLAY */}
       {countdownPhase !== null && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0a0c10]/98 backdrop-blur-xl p-6 select-none animate-fade-in">
@@ -421,24 +524,67 @@ export default function LobbyPage() {
           </div>
 
           <div className="space-y-2">
-            {teamMembers.map((tm) => (
-              <div
-                key={tm.id}
-                className="flex items-center justify-between py-2 px-3 rounded-lg bg-slate-900/60 border border-slate-800/60 text-xs"
-              >
-                <div className="flex items-center gap-2">
-                  <span className="text-slate-400">👤</span>
-                  <span className="font-semibold text-slate-200">{tm.name}</span>
+            {teamMembers.map((tm) => {
+              const isThisLeader = tm.is_leader;
+              const isWriter = Boolean(tm.is_leader || tm.can_submit);
+
+              return (
+                <div
+                  key={tm.id}
+                  className="flex items-center justify-between py-2.5 px-3 rounded-lg bg-slate-900/60 border border-slate-800/60 text-xs"
+                >
+                  <div className="flex items-center gap-2">
+                    <span className="text-slate-400">👤</span>
+                    <span className="font-semibold text-slate-200">{tm.name}</span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {isThisLeader ? (
+                      <span className="text-[11px] font-bold px-2.5 py-1 rounded bg-amber-950/70 text-amber-400 border border-amber-800/60 flex items-center gap-1">
+                        <span>👑</span>
+                        <span>القائد (كاتب)</span>
+                      </span>
+                    ) : member?.is_leader ? (
+                      <button
+                        type="button"
+                        disabled={actionLoading}
+                        onClick={() => handleToggleWriterRole(tm.id, tm.can_submit)}
+                        className={`text-[11px] font-bold px-2.5 py-1 rounded transition border flex items-center gap-1.5 ${
+                          isWriter
+                            ? 'bg-emerald-950/80 text-emerald-300 border-emerald-700 hover:bg-rose-950/80 hover:text-rose-300 hover:border-rose-700'
+                            : 'bg-slate-800 text-slate-300 border-slate-700 hover:bg-emerald-950/60 hover:text-emerald-300 hover:border-emerald-700'
+                        }`}
+                        title={isWriter ? 'اضغط للتحويل إلى مشاهد' : 'اضغط للتعيين ككاتب للإجابات'}
+                      >
+                        <span>{isWriter ? '✍️ كاتب مخصص' : '👀 مشاهد'}</span>
+                        <span className="text-[10px] text-slate-400">({isWriter ? 'تغيير' : 'تعيين كاتب'})</span>
+                      </button>
+                    ) : (
+                      <span
+                        className={`text-[11px] font-bold px-2.5 py-1 rounded border flex items-center gap-1 ${
+                          isWriter
+                            ? 'bg-emerald-950/70 text-emerald-300 border-emerald-800/60'
+                            : 'bg-slate-900 text-slate-400 border-slate-800'
+                        }`}
+                      >
+                        <span>{isWriter ? '✍️ كاتب' : '👀 مشاهد'}</span>
+                      </span>
+                    )}
+                  </div>
                 </div>
-                {tm.is_leader ? (
-                  <span className="text-[10px] px-2 py-0.5 rounded bg-amber-950/60 text-amber-400 border border-amber-800/50">
-                    القائد
-                  </span>
-                ) : (
-                  <span className="text-[10px] text-slate-500">عضو</span>
-                )}
-              </div>
-            ))}
+              );
+            })}
+          </div>
+
+          {/* Role Explainer Note */}
+          <div className="mt-3 p-2.5 rounded-lg bg-amber-950/30 border border-amber-900/40 text-[11px] text-amber-300/90 leading-relaxed space-y-1">
+            <div className="font-bold flex items-center gap-1 text-amber-400">
+              <span>✍️</span>
+              <span>نظام أدوار الفريق (كاتب ومُشاهد):</span>
+            </div>
+            <p className="text-slate-400">
+              مسموح بـ <strong className="text-slate-200">شخصين فقط</strong> في كل فريق لكتابة وتسليم الإجابات (القائد + كاتب يختاره القائد). باقي أعضاء الفريق يشاهدون الأسئلة ويشاركون في التفكير والنقاش الميداني.
+            </p>
           </div>
         </div>
 

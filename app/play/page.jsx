@@ -20,6 +20,10 @@ export default function PlayPage() {
   // Game Countdown Clock (From Admin Configured Duration)
   const [remainingTimeSeconds, setRemainingTimeSeconds] = useState(null);
 
+  // Announcement Pop-up State
+  const [dismissedAnnouncementAt, setDismissedAnnouncementAt] = useState(null);
+  const lastAlertAtRef = useRef(null);
+
   // Modals & Popups
   const [showPhotoModal, setShowPhotoModal] = useState(false);
   const [showQrModal, setShowQrModal] = useState(false);
@@ -29,6 +33,28 @@ export default function PlayPage() {
 
   const [hintLoading, setHintLoading] = useState(false);
   const audioCtxRef = useRef(null);
+
+  const playAlertSound = () => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+      [659.25, 880].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.15);
+        gain.gain.setValueAtTime(0.3, ctx.currentTime + i * 0.15);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.15 + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start(ctx.currentTime + i * 0.15);
+        osc.stop(ctx.currentTime + i * 0.15 + 0.3);
+      });
+    } catch (e) {}
+  };
 
   const playFeedbackSound = (isCorrect) => {
     try {
@@ -99,6 +125,16 @@ export default function PlayPage() {
         if (data.endAtEpoch) {
           const diff = Math.max(0, Math.floor((data.endAtEpoch - Date.now()) / 1000));
           setRemainingTimeSeconds(diff);
+        }
+
+        // Check incoming live announcements
+        if (data.announcement && data.announcement.text) {
+          const targetEra = data.announcement.eraId;
+          const isTargeted = !targetEra || targetEra === data.team?.eraId;
+          if (isTargeted && data.announcement.at && lastAlertAtRef.current !== data.announcement.at) {
+            lastAlertAtRef.current = data.announcement.at;
+            playAlertSound();
+          }
         }
 
         setLevelData(data);
@@ -343,7 +379,32 @@ export default function PlayPage() {
   const teamNumber = levelData?.team?.teamNumber || 1;
 
   return (
-    <main className="min-h-screen max-w-lg mx-auto p-4 flex flex-col justify-between bg-[#0a0c10] text-slate-200">
+    <main className="min-h-screen max-w-lg mx-auto p-4 flex flex-col justify-between bg-[#0a0c10] text-slate-200 relative">
+      {/* GAME MASTER ANNOUNCEMENT POP-UP MODAL */}
+      {levelData?.announcement && levelData.announcement.text && levelData.announcement.at !== dismissedAnnouncementAt && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in select-none">
+          <div className="w-full max-w-sm p-6 rounded-2xl bg-[#121620] border-2 border-amber-500 shadow-2xl shadow-amber-500/20 text-center space-y-4">
+            <div className="text-5xl animate-bounce">📢</div>
+            <div className="inline-block px-3 py-1 rounded-full bg-amber-500/20 border border-amber-500 text-amber-400 text-xs font-black tracking-wider">
+              تنبيه عاجل من الجيم ماستر
+            </div>
+            <h3 className="text-base font-black text-slate-100 leading-snug">
+              {levelData.announcement.eraId ? `إعلان خاص بالمسار التاريخي` : `إعلان عام لجميع الفرق`}
+            </h3>
+            <div className="p-3.5 rounded-xl bg-slate-900/90 border border-slate-800 text-xs font-semibold text-slate-200 leading-relaxed text-right max-h-48 overflow-y-auto">
+              {levelData.announcement.text}
+            </div>
+            <button
+              type="button"
+              onClick={() => setDismissedAnnouncementAt(levelData.announcement.at)}
+              className="w-full py-2.5 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-xs transition shadow-md shadow-amber-600/30"
+            >
+              فهمت الرسالة (إغلاق) ✓
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* 1. TOP RACING HEADER */}
       <header className="flex items-center justify-between py-2 border-b border-slate-900 gap-2">
         <div className="flex gap-1.5">
@@ -372,6 +433,16 @@ export default function PlayPage() {
             <span>💎</span>
             <span>{points}</span>
             <span className="text-[10px] font-normal text-amber-400/80">نقطة</span>
+          </div>
+
+          <div
+            className={`px-2 py-1 rounded-lg border text-[10px] font-bold ${
+              levelData?.member?.can_submit
+                ? 'bg-emerald-950/70 border-emerald-700/60 text-emerald-300'
+                : 'bg-slate-900 border-slate-800 text-slate-400'
+            }`}
+          >
+            {levelData?.member?.can_submit ? '✍️ كاتب' : '👀 مشاهد'}
           </div>
         </div>
       </header>
@@ -540,65 +611,78 @@ export default function PlayPage() {
             </div>
           )}
 
-          <form onSubmit={handleSubmitAnswer} className="space-y-3">
-            {isMulti ? (
-              <div className="space-y-2">
-                <div>
-                  <label className="block text-[11px] font-medium text-slate-400 mb-1">
-                    {level.questions[0]}
-                  </label>
-                  <input
-                    type="text"
-                    value={multiAnswer.ans1}
-                    onChange={(e) => setMultiAnswer((p) => ({ ...p, ans1: e.target.value }))}
-                    placeholder="الإجابة الأولى..."
-                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600"
-                  />
-                </div>
-                <div>
-                  <label className="block text-[11px] font-medium text-slate-400 mb-1">
-                    {level.questions[1]}
-                  </label>
-                  <input
-                    type="text"
-                    value={multiAnswer.ans2}
-                    onChange={(e) => setMultiAnswer((p) => ({ ...p, ans2: e.target.value }))}
-                    placeholder="الإجابة الثانية..."
-                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600"
-                  />
-                </div>
+          {levelData?.member && !levelData.member.can_submit ? (
+            <div className="p-4 rounded-xl bg-slate-900/80 border border-slate-800 text-center space-y-2.5">
+              <div className="text-3xl">👀</div>
+              <h4 className="text-xs font-bold text-slate-200">أنت في وضع المشاهدة والنقاش</h4>
+              <p className="text-[11px] text-slate-400 leading-relaxed max-w-xs mx-auto">
+                السؤال والألغاز معروضة أمامك للمساعدة والتفكير الجماعي. تسليم الإجابة متاح فقط لقائد الفريق والكاتب المعتمد.
+              </p>
+              <div className="inline-block px-3 py-1 rounded-full bg-slate-800 text-[10px] text-amber-400 font-semibold border border-slate-700">
+                💡 شارك أفكارك وحلولك الميدانية مع كاتب فريقك
               </div>
-            ) : (
-              <div>
-                <input
-                  type="text"
-                  value={answer}
-                  onChange={(e) => setAnswer(e.target.value)}
-                  placeholder="اكتب الحل الميداني أو الكود هنا..."
-                  className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-amber-600 font-medium placeholder:text-slate-500"
-                />
-              </div>
-            )}
-
-            <div className="flex gap-2">
-              <button
-                type="submit"
-                disabled={submitting}
-                className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-black text-xs transition disabled:opacity-50 shadow-md shadow-amber-600/20"
-              >
-                {submitting ? 'جاري التحقق...' : 'تأكيد الحل 🚀'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowQrModal(true)}
-                className="px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition border border-slate-700/60"
-              >
-                <span>📷</span>
-                <span>مسح QR</span>
-              </button>
             </div>
-          </form>
+          ) : (
+            <form onSubmit={handleSubmitAnswer} className="space-y-3">
+              {isMulti ? (
+                <div className="space-y-2">
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                      {level.questions[0]}
+                    </label>
+                    <input
+                      type="text"
+                      value={multiAnswer.ans1}
+                      onChange={(e) => setMultiAnswer((p) => ({ ...p, ans1: e.target.value }))}
+                      placeholder="الإجابة الأولى..."
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                      {level.questions[1]}
+                    </label>
+                    <input
+                      type="text"
+                      value={multiAnswer.ans2}
+                      onChange={(e) => setMultiAnswer((p) => ({ ...p, ans2: e.target.value }))}
+                      placeholder="الإجابة الثانية..."
+                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600"
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div>
+                  <input
+                    type="text"
+                    value={answer}
+                    onChange={(e) => setAnswer(e.target.value)}
+                    placeholder="اكتب الحل الميداني أو الكود هنا..."
+                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-amber-600 font-medium placeholder:text-slate-500"
+                  />
+                </div>
+              )}
+
+              <div className="flex gap-2">
+                <button
+                  type="submit"
+                  disabled={submitting}
+                  className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-black text-xs transition disabled:opacity-50 shadow-md shadow-amber-600/20"
+                >
+                  {submitting ? 'جاري التحقق...' : 'تأكيد الحل 🚀'}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setShowQrModal(true)}
+                  className="px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition border border-slate-700/60"
+                >
+                  <span>📷</span>
+                  <span>مسح QR</span>
+                </button>
+              </div>
+            </form>
+          )}
         </div>
       </section>
 

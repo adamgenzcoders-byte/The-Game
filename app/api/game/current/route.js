@@ -32,6 +32,11 @@ export async function GET(request) {
       return NextResponse.json({
         gameState: gameState ? gameState.state : 'LOBBY',
         startAtEpoch: gameState ? gameState.start_at_epoch : null,
+        announcement: gameState?.announcement_text ? {
+          text: gameState.announcement_text,
+          eraId: gameState.announcement_era_id !== null && gameState.announcement_era_id !== undefined ? Number(gameState.announcement_era_id) : null,
+          at: gameState.announcement_at || null,
+        } : null,
       });
     }
 
@@ -145,6 +150,17 @@ export async function GET(request) {
       gameState: 'RUNNING',
       serverNow: Date.now(),
       endAtEpoch: gameState.end_at_epoch,
+      member: {
+        id: member.id,
+        name: member.name,
+        is_leader: Boolean(member.is_leader),
+        can_submit: Boolean(member.is_leader || member.can_submit),
+      },
+      announcement: gameState?.announcement_text ? {
+        text: gameState.announcement_text,
+        eraId: gameState.announcement_era_id !== null && gameState.announcement_era_id !== undefined ? Number(gameState.announcement_era_id) : null,
+        at: gameState.announcement_at || null,
+      } : null,
       team: {
         id: team.id,
         teamNumber: team.team_number || 1,

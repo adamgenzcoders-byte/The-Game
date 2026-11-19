@@ -19,6 +19,14 @@ export async function POST(request) {
       return NextResponse.json({ error: 'لست في فريق' }, { status: 403 });
     }
 
+    // Role Check: Only Leader and Designated Writer can submit answers
+    const canSubmit = Boolean(member.is_leader || member.can_submit);
+    if (!canSubmit) {
+      return NextResponse.json({
+        error: 'أنت في وضع المشاهدة. فقط قائد الفريق أو الكاتب المعتمد يمكنه تسليم الإجابة!'
+      }, { status: 403 });
+    }
+
     // Check game state
     const gameState = await queryOne(`SELECT state, end_at_epoch FROM game_state WHERE id = 1`);
     if (!gameState || gameState.state !== 'RUNNING') {
