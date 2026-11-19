@@ -1141,7 +1141,7 @@ export default function AdminPage() {
               </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 pt-2">
               <a
                 href={`/api/admin/print/qr?key=${encodeURIComponent(adminToken || 'AD@776@z776')}`}
                 target="_blank"
@@ -1162,6 +1162,29 @@ export default function AdminPage() {
                 </p>
                 <span className="inline-block text-xs text-amber-500 font-semibold pt-1">
                   فتح صفحة الطباعة ←
+                </span>
+              </a>
+
+              <a
+                href={`/api/admin/print/qr-guide?key=${encodeURIComponent(adminToken || 'AD@776@z776')}`}
+                target="_blank"
+                rel="noreferrer"
+                onClick={(e) => {
+                  e.preventDefault();
+                  const token = adminToken || localStorage.getItem('admin_token') || 'AD@776@z776';
+                  window.open(`/api/admin/print/qr-guide?key=${encodeURIComponent(token)}`, '_blank');
+                }}
+                className="p-5 rounded-xl bg-amber-950/30 border border-amber-800/60 hover:border-amber-500 transition block space-y-2 group cursor-pointer"
+              >
+                <div className="text-3xl">📍</div>
+                <h3 className="text-sm font-bold text-amber-300 group-hover:text-amber-200">
+                  دليل أماكن تعليق الـ QR (مع الصور)
+                </h3>
+                <p className="text-xs text-slate-400 leading-relaxed">
+                  كتالوج ميداني لكل كود QR بجواره صورة الموقع بالمدرسة لتسهيل تعليق الملصقات بدقة.
+                </p>
+                <span className="inline-block text-xs text-amber-400 font-semibold pt-1">
+                  فتح دليل الأماكن والصور ←
                 </span>
               </a>
 

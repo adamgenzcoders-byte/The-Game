@@ -85,13 +85,23 @@ export default function QrDirectScanPage({ params }) {
             </p>
 
             {data?.revealedContent && (
-              <div className="p-3 rounded-xl bg-slate-900 border border-amber-800/40 space-y-1">
-                <span className="text-[10px] text-amber-500 font-semibold block">
-                  البيانات / الرمز السري المكتشف:
+              <div className="p-3.5 rounded-xl bg-slate-900 border border-amber-800/40 space-y-2">
+                <span className="text-[11px] text-amber-500 font-semibold block">
+                  البيانات المكتشفة:
                 </span>
-                <span className="text-sm font-bold text-amber-300 font-mono select-all">
-                  {data.revealedContent}
+                <span className="text-xs text-amber-200 block leading-relaxed">
+                  {(data.revealedContent || '').replace(/<[^>]*>/g, '')}
                 </span>
+                {data.code && (
+                  <div className="pt-2 border-t border-slate-800">
+                    <span className="text-[10px] text-emerald-400 font-semibold block">
+                      كود الحل المطلوب إدخاله في اللعبة:
+                    </span>
+                    <span className="text-base font-extrabold text-emerald-300 font-mono select-all tracking-wider block mt-0.5">
+                      {data.code}
+                    </span>
+                  </div>
+                )}
               </div>
             )}
 

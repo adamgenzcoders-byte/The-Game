@@ -43,11 +43,26 @@ export async function GET(request, { params }) {
       }
     }
 
+    // Strip any HTML tags from revealed content so players see plain text
+    const rawContent = qrRecord.revealed_content || '';
+    const cleanContent = rawContent.replace(/<[^>]*>/g, '').trim();
+
+    // Extract exact code if present
+    let extractedCode = '';
+    const strongMatch = rawContent.match(/<strong[^>]*>(.*?)<\/strong>/i);
+    if (strongMatch) {
+      extractedCode = strongMatch[1].trim();
+    } else {
+      const colonMatch = cleanContent.match(/:\s*([A-Za-z0-9\-]+)/);
+      if (colonMatch) extractedCode = colonMatch[1].trim();
+    }
+
     return NextResponse.json({
       found: true,
       label: qrRecord.label,
       location: qrRecord.location_name,
-      revealedContent: qrRecord.revealed_content,
+      revealedContent: cleanContent,
+      code: extractedCode || cleanContent,
       matchesCurrentLevel,
       hintMessage,
     });

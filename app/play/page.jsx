@@ -295,9 +295,10 @@ export default function PlayPage() {
         setQrResult({ error: data.message || 'رمز QR غير معروف' });
       } else {
         setQrResult(data);
-        if (data.matchesCurrentLevel && data.revealedContent) {
-          // Pre-fill answer box
-          setAnswer(data.revealedContent);
+        if (data.matchesCurrentLevel && (data.code || data.revealedContent)) {
+          // Pre-fill answer box with the clean answer code (without any HTML tags)
+          const cleanAns = (data.code || data.revealedContent).replace(/<[^>]*>/g, '').trim();
+          setAnswer(cleanAns);
         }
       }
     } catch (err) {
@@ -867,8 +868,13 @@ export default function PlayPage() {
                     <p className="font-bold">{qrResult.label}</p>
                     <p>{qrResult.hintMessage}</p>
                     {qrResult.revealedContent && (
-                      <div className="mt-1 pt-1 border-t border-emerald-800 text-amber-300 font-mono text-[11px]">
-                        المحتوى المكتشف: {qrResult.revealedContent}
+                      <div className="mt-1 pt-1 border-t border-emerald-800 text-amber-300 font-mono text-[11px] space-y-1">
+                        <div>المحتوى المكتشف: {qrResult.revealedContent.replace(/<[^>]*>/g, '')}</div>
+                        {qrResult.code && qrResult.code !== qrResult.revealedContent && (
+                          <div className="text-emerald-400 font-bold">
+                            كود الحل: {qrResult.code} (تم وضعه في خانة الإجابة)
+                          </div>
+                        )}
                       </div>
                     )}
                   </>

@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <title>دليل تركيب ملصقات الـ QR الميدانية مع الصور - مدرسة السويدي</title>
+  <style>
+    @page { size: A4 portrait; margin: 8mm; }
+    * { box-sizing: border-box; }
+    body { font-family: 'Segoe UI', Tahoma, -apple-system, BlinkMacSystemFont, Arial, sans-serif; margin: 0; background: #f1f5f9; color: #0f172a; font-size: 13px; }
+    .no-print { background: #0f172a; color: #fff; padding: 12px 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: flex; justify-content: space-between; align-items: center; }
+    .btn { background: #f59e0b; color: #000; border: none; padding: 8px 24px; border-radius: 6px; font-weight: bold; cursor: pointer; font-size: 14px; transition: 0.2s; }
+    .btn:hover { background: #d97706; }
+    .container { max-width: 1000px; margin: 0 auto; padding: 16px; }
+    .page-header { text-align: center; background: #fff; padding: 20px; border-radius: 12px; border: 2px solid #e2e8f0; margin-bottom: 20px; }
+    .page-header h1 { margin: 0 0 6px 0; font-size: 22px; color: #0f172a; }
+    .page-header p { margin: 0; font-size: 14px; color: #64748b; }
+    .guide-card { background: #fff; border: 2px solid #cbd5e1; border-radius: 10px; margin-bottom: 20px; overflow: hidden; page-break-inside: avoid; box-shadow: 0 2px 6px rgba(0,0,0,0.04); }
+    .card-header { background: #1e293b; color: #fff; padding: 10px 16px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+    .header-right { display: flex; align-items: center; gap: 8px; }
+    .num-badge { background: #475569; color: #fff; font-weight: bold; font-size: 12px; padding: 2px 8px; border-radius: 4px; }
+    .era-badge { background: #f59e0b; color: #000; font-weight: bold; font-size: 12px; padding: 2px 10px; border-radius: 4px; }
+    .card-title { font-weight: bold; font-size: 14px; color: #f8fafc; }
+    .location-badge { background: #334155; color: #fcd34d; font-weight: 600; font-size: 12px; padding: 4px 10px; border-radius: 6px; border: 1px solid #475569; }
+    .card-body { display: flex; align-items: stretch; padding: 14px; gap: 12px; }
+    .qr-col { flex: 0 0 260px; display: flex; flex-direction: column; align-items: center; text-align: center; background: #fafafa; border: 1px dashed #cbd5e1; border-radius: 8px; padding: 12px; }
+    .col-title { font-size: 11px; font-weight: bold; color: #475569; margin-bottom: 8px; }
+    .qr-img { width: 180px; height: 180px; display: block; margin: 0 auto 6px; border-radius: 6px; border: 1px solid #e2e8f0; background: #fff; padding: 4px; }
+    .token-tag { font-size: 11px; color: #64748b; margin-bottom: 6px; }
+    .token-tag code { font-family: monospace; background: #e2e8f0; padding: 1px 6px; border-radius: 4px; color: #0f172a; font-weight: bold; }
+    .code-box { background: #ecfdf5; border: 1px solid #a7f3d0; border-radius: 6px; padding: 6px 10px; width: 100%; margin-bottom: 6px; text-align: center; }
+    .code-title { display: block; font-size: 10px; color: #065f46; font-weight: 600; }
+    .code-val { font-family: monospace; font-size: 14px; font-weight: 800; color: #047857; letter-spacing: 0.5px; }
+    .content-preview { font-size: 11px; color: #475569; background: #f1f5f9; padding: 4px 8px; border-radius: 4px; width: 100%; text-align: center; line-height: 1.4; }
+    .arrow-col { flex: 0 0 70px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: #d97706; }
+    .arrow-text { font-size: 11px; font-weight: bold; margin-bottom: 4px; }
+    .arrow-icon { font-size: 24px; animation: bounce 1.5s infinite; }
+    .photo-col { flex: 1; display: flex; flex-direction: column; }
+    .photo-wrapper { border: 1px solid #cbd5e1; border-radius: 8px; overflow: hidden; background: #000; height: 100%; display: flex; flex-direction: column; }
+    .photo-img { width: 100%; max-height: 240px; object-fit: cover; display: block; background: #1e293b; }
+    .photo-meta { background: #1e293b; color: #94a3b8; font-size: 10px; padding: 6px 10px; font-family: monospace; border-top: 1px solid #334155; }
+    .photo-meta code { color: #f59e0b; }
+    .no-photo { height: 180px; display: flex; align-items: center; justify-content: center; background: #f8fafc; border: 1px dashed #cbd5e1; border-radius: 8px; color: #94a3b8; font-size: 13px; }
+    @media print {
+      body { background: #fff; }
+      .no-print { display: none !important; }
+      .container { max-width: 100%; padding: 0; }
+      .guide-card { border: 1.5px solid #000; margin-bottom: 15px; page-break-inside: avoid; }
+      .card-header { background: #000 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    }
+  </style>
+</head>
+<body>
+  <div class="no-print">
+    <div>
+      <strong style="color:#f59e0b;">مدرسة السويدي الدولية للتكنولوجيا التطبيقية</strong> • دليل تركيب ملصقات QR الميدانية
+    </div>
+    <button class="btn" onclick="window.print()">🖨️ طباعة الدليل الميداني الكامل (A4)</button>
+  </div>
+
+  <div class="container">
+    <div class="page-header">
+      <h1>دليل تركيب ملصقات الـ QR الميدانية • لغز مصر عبر الحضارات</h1>
+      <p>كتالوج يوضح كل كود QR مع صورة المعلم الحقيقي بالمدرسة الذي يُلصق بجانبه مباشرة • عدد الملصقات: 20</p>
+    </div>
+
+    
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#1</span>
+        <span class="era-badge">العصر 1 • مستوى 2 • تفريعة [A]</span>
+        <span class="card-title">كود لغز كود البردية الشمسية (QR) (تفريعة A)</span>
+      </div>
+      <div class="location-badge">📍 مبنى الفصول أ - الدور الأول</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQ1SURBVO3B0W0dCxYDweaB8k+ZK8AB3PmYR0vrrkq/IWnikDRzSJo5JM0ckmYOSTOHpJlD0swhaeaQNPPFQ0nQH215SxLW2vKWJOiPtnxySJo5JM0ckmYOSTOHpJlD0swhaeaQNHNImvniZW35rZLwm7XliSR80pY3teW3SsJbDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckma++AuSsNaWtSS8pS2fJOGJtvxESVhry9IhaeaQNHNImjkkzRySZg5JM4ekmUPSzCFp5gv9CknQ73dImjkkzRySZg5JM4ekmUPSzCFp5pA084X+qrasJeGTtuh9h6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkv/oK26H1JeKItP1Fb/t8dkmYOSTOHpJlD0swhaeaQNHNImjkkzXzxsiTofUn4pC1PJOGTtrwpCYJD0swhaeaQNHNImjkkzRySZg5JM4ekmUPSTPoN/SeS8Elb9O84JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzXzxUBKeaMsnSfjN2vJEW5aS8ERb3pKE36wtS4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkz6TdelIRP2vJEEpba8lMl4ZO2PJGET9qyloQn2vJJEtba8skhaeaQNHNImjkkzRySZg5JM4ekmUPSzCFp5ouHkvBEWz5Jwk+UhJ+qLUtJeKItTyThk7Y8kYSltrzlkDRzSJo5JM0ckmYOSTOHpJlD0swhaSb9xouS8ElbnkjCJ215IgmftOVNSfikLU8k4Sdqy0+UhLW2fHJImjkkzRySZg5JM4ekmUPSzCFp5pA0c0iaSb8xloQn2rKUhCfa8pYkvKUtTyThLW35zZLwlrZ8ckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDSTfkP/iSS8pS1LSfjN2vKWJDzRlk8OSTOHpJlD0swhaeaQNHNImjkkzRySZg5JM+k3HkiC/mjLW5LwL2jLW5LwSVt+okPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMFy9ry2+VhDcl4S1t+SQJT7TlkyQ80Za3JOEtSXhLW95ySJo5JM0ckmYOSTOHpJlD0swhaeaQNPPFX5CEtbb8RG15IglLbXkiCU+0ZaktTyThkyQ80ZZPDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTNf6K9KwhNt+SQJTyThJ2rLW5LwRFuWDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckma+0K+QhKW2/FRJ+K0OSTOHpJlD0swhaeaQNHNImjkkzRySZg5JM1/8BW35F7TlLUn4pC0/VRIEh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTNfvCwJ+iMJb2nLW5LwE7XliSR80pYnkvBJW95ySJo5JM0ckmYOSTOHpJlD0swhaeaQNHNImkm/IWnikDRzSJo5JM0ckmYOSTOHpJlD0swhaeZ/a0z/sgVbasIAAAAASUVORK5CYII=" alt="qr_e1_l2_a" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e1_l2_a</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">SUN-1353</span>
+        </div>
+        <div class="content-preview">رمز المخطوطة السري: SUN-1353 (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_125930095.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_125930095.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_125930095.jpg</code> • الموقع: مبنى الفصول أ - الدور الأول</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#2</span>
+        <span class="era-badge">العصر 1 • مستوى 2 • تفريعة [A]</span>
+        <span class="card-title">ملصق سلم 2 - الدور الثاني</span>
+      </div>
+      <div class="location-badge">📍 سلم 2 (مبنى الفصول الدور الثاني)</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAARRSURBVO3B0W0kOgIDQZKY/FPmGXAA0oeWtu91lftFACYiADMRgJkIwEwEYCYCMBMBmIkAzEQAZiIAMx9dsi18a6tXbOtGW71iWydtdcO28K2tTiIAMxGAmQjATARgJgIwEwGYiQDMRABmIgAzHz3WVn+Vbb1kW/jWVn+Vbb0SAZiJAMxEAGYiADMRgJkIwEwEYCYCMPPRD7CttbZaayvcs621tlqKAMxEAGYiADMRgJkIwEwEYCYCMBMBmIkAzHyEP8G2Xmkr/IwIwEwEYCYCMBMBmIkAzEQAZiIAMxGAmY/wz9jWSVvdaKtXbOukrfBeBGAmAjATAZiJAMxEAGYiADMRgJkIwEwEYOajH9BW/wVtdWJba231G7XV/7sIwEwEYCYCMBMBmIkAzEQAZiIAMxGAmY8esy18s62TtrphWydtdcO2TtrqJduCFAGYiQDMRABmIgAzEYCZCMBMBGAmAjATAZhxvwg/xrZutNWJbb3SVngvAjATAZiJAMxEAGYiADMRgJkIwEwEYCYCMPPRJdu60VYntnWjrU5s60ZbndjWjbZ6pa1eaasbtvUb2daNtnrFtk7a6pUIwEwEYCYCMBMBmIkAzEQAZiIAMxGAmY9+QFu90lY3bOukrW7Y1o22wnu2ddJWN9rqxLZutNVJBGAmAjATAZiJAMxEAGYiADMRgJkIwEwEYOajS211w7ZO2uqGbZ201Su2tWZbN9rqN7Kt38i2fqMIwEwEYCYCMBMBmIkAzEQAZiIAMxGAmY8u2dYrtvWKbd1oq9+orW7Y1klbrbXVK7b1Slu9YluvRABmIgAzEYCZCMBMBGAmAjATAZiJAMxEAGY+eqytTmzrRlud2NYN21prq1fa6sS2brTVX9ZWr9jWSVu9EgGYiQDMRABmIgAzEYCZCMBMBGAmAjDjfhH+Cds6aavfyLZutNUrtnWjrU5sa62tTiIAMxGAmQjATARgJgIwEwGYiQDMRABmIgAz7hddsC18a6tXbAvvtdUrtnWjrU4iADMRgJkIwEwEYCYCMBMBmIkAzEQAZiIAMx891lZ/lW39ZW11w7ZO2mrNtm601Su2tRQBmIkAzEQAZiIAMxGAmQjATARgJgIw89EPsK21tlqzLXyzrZO2umFbJ231Slu9EgGYiQDMRABmIgAzEYCZCMBMBGAmAjATAZj5CP9MW53Y1o22WrKtl9oKUgRgJgIwEwGYiQDMRABmIgAzEYCZCMDMR/hnbOukrW7Y1l9mW0u2daOtTmzrRludRABmIgAzEYCZCMBMBGAmAjATAZiJAMxEAGY++gFt9V/QVn9VW71kW6+01Su2ddJWr0QAZiIAMxGAmQjATARgJgIwEwGYiQDMuF90wbbwra1u2NZJW63Z1itt9YptvdJWN2zrlbY6iQDMRABmIgAzEYCZCMBMBGAmAjATAZiJAMy4XwRgIgIwEwGYiQDMRABmIgAzEYCZCMBMBGDmf2KeFbdUpFxEAAAAAElFTkSuQmCC" alt="qr_stairs_2" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_stairs_2</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">SUN-1353</span>
+        </div>
+        <div class="content-preview">كود سلم الأمل: SUN-1353</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_125930095.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_125930095.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_125930095.jpg</code> • الموقع: سلم 2 (مبنى الفصول الدور الثاني)</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#3</span>
+        <span class="era-badge">العصر 1 • مستوى 2 • تفريعة [B]</span>
+        <span class="card-title">كود لغز كود البردية الشمسية (QR) (تفريعة B)</span>
+      </div>
+      <div class="location-badge">📍 مبنى الفصول ب - الدور الثاني</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQfSURBVO3B0W0dCxYDweaB8k+Za8AB3PmYR0nrrkr/QNLEIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaLh5Kgv9qyloS3tOUtSdBfbfnkkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaQNPPFy9ryWyVB/422/FZJeMshaeaQNHNImjkkzRySZg5JM4ekmUPSzBffIAlrbVlLwidteaItnyThiSR80pa1JKy1ZemQNHNImjkkzRySZg5JM4ekmUPSzCFp5pA084W+VRL07zgkzRySZg5JM4ekmUPSzCFp5pA0c0ia+UK/QlvekgR9j0PSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMF9+gLfqrLU8k4S1t+Yna8v/ukDRzSJo5JM0ckmYOSTOHpJlD0swhaeaLlyVB36MtTyThk7a8KQmCQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJlD0kz6B/pPJOGTtujfcUiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr54qEkPNGWT5Lwm7XlibZ8koS1trwlCb9ZW5YOSTOHpJlD0swhaeaQNHNImjkkzRySZtI/eCAJa23R+5LwSVvWkvBEWz5JwlpbPjkkzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTNpH8wloS3tOUtSXiiLU8k4ZO2rCXhLW15IgmftOWJJCy15S2HpJlD0swhaeaQNHNImjkkzRySZg5JM+kfPJCEJ9rySRKeaMsnSXiiLXouCU+05SdKwlpbPjkkzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTNfPFQW55IwlJb3pKEJ9ryliS8pS1PJOH/XVueSMLSIWnmkDRzSJo5JM0ckmYOSTOHpJlD0kz6B/pPJOGTtjyRhE/a8pYk/GZteUsSnmjLJ4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZLx5Kgv5qyxNtWUrCT9WWtyRhqS1vOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM188bK2/FZJeFMS3tKWT5LwRFs+ScITbXlLEt6ShLe05S2HpJlD0swhaeaQNHNImjkkzRySZg5JM198gySsteUnastP1JYnkvBEW5ba8kQSPknCE2355JA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmkDTzhf45SfiJ2vKWJDzRlqVD0swhaeaQNHNImjkkzRySZg5JM4ekmS/0KyRhqS0/VRJ+q0PSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMF9+gLf+CtnyShLe05adKguCQNHNImjkkzRySZg5JM4ekmUPSzCFp5ouXJUF/JeEtbXlLEn6itjyRhE/a8kQSPmnLWw5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkz6R9ImjgkzRySZg5JM4ekmUPSzCFp5pA0c0ia+R86ufWt/aoFawAAAABJRU5ErkJggg==" alt="qr_e1_l2_b" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e1_l2_b</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">ATEN-SUN</span>
+        </div>
+        <div class="content-preview">رمز المخطوطة السري: ATEN-SUN (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_125930095.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_125930095.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_125930095.jpg</code> • الموقع: مبنى الفصول ب - الدور الثاني</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#4</span>
+        <span class="era-badge">العصر 1 • مستوى 2 • تفريعة [C]</span>
+        <span class="card-title">كود لغز كود البردية الشمسية (QR) (تفريعة C)</span>
+      </div>
+      <div class="location-badge">📍 الملاعب والقاعة الكبرى</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQiSURBVO3BwW0lBxQDweaD8k+ZXmAD+HMYU5LdVekfSJo4JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzXzxUBL0V1vekoQn2vJJEp5oy1uSoL/a8skhaeaQNHNImjkkzRySZg5JM4ekmUPSzCFp5ouXteW3SsJaW55Iwidt+ana8lsl4S2HpJlD0swhaeaQNHNImjkkzRySZg5JM198gySstWUtCW9pyydJeKItP1ES1tqydEiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr5Qt+qLW9pyxNJ+KQtet8haeaQNHNImjkkzRySZg5JM4ekmUPSzBf6Vkl4oi36/Q5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkzX3yDtuivtrwlCU+05Sdqy3/dIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swXL0uC3peET9ryRBI+acubkiA4JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzaR/oH9FEj5pi/4/Dkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTNfPJSEJ9rySRJ+s7Y80Za3JOEtbXlLEn6ztiwdkmYOSTOHpJlD0swhaeaQNHNImjkkzaR/8Isl4Ym2/GZJ+KQtTyThk7asJeGJtnyShLW2fHJImjkkzRySZg5JM4ekmUPSzCFp5pA0c0ia+eIbJOEnSsKb2vKWtiwl4Ym2PJGET9ryRBKW2vKWQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJn0Dx5IwhNt+a9LwhNtWUrCE235JAlPtOUnSsJaWz45JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzXzxsiS8pS1LSXiiLT9RW55Iwn9dW55IwtIhaeaQNHNImjkkzRySZg5JM4ekmUPSTPoH+lckYaktb0nCb9aWtyThibZ8ckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJpJ/+CBJOivtqwl4Tdry1uS8ElbfqJD0swhaeaQNHNImjkkzRySZg5JM4ekmUPSzBcva8tvlYQ3JeGTtqy15ZMkPNGWtyThLUl4S1veckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDTzxTdIwlpb9FxbnkjCE21ZassTSfgkCU+05ZND0swhaeaQNHNImjkkzRySZg5JM4ekmUPSzBf6VklYS8JP1Ja3JOGJtiwdkmYOSTOHpJlD0swhaeaQNHNImjkkzXyhb9WWJ5Kw1JafKgm/1SFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmi2/Qlv+Dtiy15adKguCQNHNImjkkzRySZg5JM4ekmUPSzCFp5ouXJUF/JeGTtqwl4SdqyxNJ+KQtTyThk7a85ZA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmkDST/oGkiUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZfwDkc/ukt2wEPQAAAABJRU5ErkJggg==" alt="qr_e1_l2_c" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e1_l2_c</code></div>
+        
+        <div class="content-preview">رمز المخطوطة السري: آتون (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_125930095.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_125930095.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_125930095.jpg</code> • الموقع: الملاعب والقاعة الكبرى</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#5</span>
+        <span class="era-badge">العصر 1 • مستوى 3</span>
+        <span class="card-title">ملصق الفود كورت</span>
+      </div>
+      <div class="location-badge">📍 الفود كورت بجانب ثلاجة المشروبات</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAVPSURBVO3BgY0bSRAEwawG/Xe5XhYMCYy2j6fPiPQPJK0YJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK158YEk/Ova8s2S8E5bTpJw0pYnJeFf15aTQdKaQdKaQdKaQdKaQdKaQdKaQdKaF39BW75dEm4k4UZbTpJw0pZ3knDSlm/Wlm+XhBuDpDWDpDWDpDWDpDWDpDWDpDWDpDUvFiThSW15WltOknCjLSdJeKctN5Jw0pafloQnteVJg6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q1L/QVknArCSdtOWmLnjVIWjNIWjNIWjNIWjNIWjNIWjNIWvNCH0nCSVtOknCjLe8k4UlJOGmLzgZJawZJawZJawZJawZJawZJawZJa14saMtv15aflIR32nKShBtt+Wlt+c0GSWsGSWsGSWsGSWsGSWsGSWsGSWsGSWte/AVJ+Ncl4aQtN9pykoSnteUkCSdtuZGEf90gac0gac0gac0gac0gac0gac0gac2LD7Tl/64tJ0k4actPa8tJEp7Ulv+7QdKaQdKaQdKaQdKaQdKaQdKaQdKaFx9IwklbTpJw0paTJJy05Z0knLTlJyXhp7Xl2yXhpC03knDSlhuDpDWDpDWDpDWDpDWDpDWDpDWDpDUvPtCW364t36wtJ0l4JwknbbmRhCe15Z223EjCjSSctOVkkLRmkLRmkLRmkLRmkLRmkLRmkLTmxQeS8M2S8LS2PCkJJ225lYSTtvykJLzTlpMknLTlRhJuDJLWDJLWDJLWDJLWDJLWDJLWDJLWvPhAW24k4SQJN9pyKwm/XRKe1JaTJJy05VYSTtrypLbcGCStGSStGSStGSStGSStGSStGSStefGBJNxoy40k3ErCSVtOkvDt2nKShJ+UhJO2vNOWkySctOVGEk7acjJIWjNIWjNIWjNIWjNIWjNIWjNIWjNIWvPiA205ScJJEk7aciMJ77TlJAknbTlJwr8uCSdt0dkgac0gac0gac0gac0gac0gac0gaU36B28k4aQtJ0n4dm357ZJw0pYnJeGkLSdJeKctJ0n4SW05GSStGSStGSStGSStGSStGSStGSStefGBtpwk4UZbTpJw0pZbSThpy40k3GjLO225kYQbbTlJwklb3knCSVuelIQbg6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q16R+8kYSTtpwk4UZbbiXhRltuJOGkLSdJeKctT0rCb9eWkySctOXGIGnNIGnNIGnNIGnNIGnNIGnNIGlN+gd6Kwk32nKShKe15UYSTtrytCTcaMtJEm605WSQtGaQtGaQtGaQtGaQtGaQtGaQtObFB5Lwr2vLSVtuJOFpbTlJwk9KwklbbrXlRltOknBjkLRmkLRmkLRmkLRmkLRmkLRmkLTmxV/Qlm+XhG/WlpMkvJOEG205ScKNtny7JJy05cYgac0gac0gac0gac0gac0gac0gac0gac2LBUl4UlueloQnJeGkLbeS8KQk/LQk3GjLSRJO2nIySFozSFozSFozSFozSFozSFozSFrzQh9py0kSTtpykoTfri03knCrLSdJuNGWG4OkNYOkNYOkNYOkNYOkNYOkNYOkNS/0kSQ8qS23knDSlpMknLTl2yXhpC03knDSlpNB0ppB0ppB0ppB0ppB0ppB0ppB0poXC9ry27XlJAknSbjRlnfa8qQk3GjL09pyIwknbbkxSFozSFozSFozSFozSFozSFozSFrz4i9Iwr8uCU9qy0kS3mmLnpWEk7acDJLWDJLWDJLWDJLWDJLWDJLWDJLWpH8gacUgac0gac0gac0gac0gac0gac0gac1/x4mkzHRW3/wAAAAASUVORK5CYII=" alt="qr_food_court" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_food_court</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">SALAH-10</span>
+        </div>
+        <div class="content-preview">رمز الضيافة: SALAH-10</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_130004639.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_130004639.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_130004639.jpg</code> • الموقع: الفود كورت بجانب ثلاجة المشروبات</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#6</span>
+        <span class="era-badge">العصر 1 • مستوى 10</span>
+        <span class="card-title">ملصق القاعة الكبرى</span>
+      </div>
+      <div class="location-badge">📍 بهو القاعة الكبرى والمسرح</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAUhSURBVO3BgW0jSRAEwawG/Xe5/iwYChhtU9JnRPoPklYMktYMktYMktYMktYMktYMktYMktYMkta8+IIk/HVtOUnCjbacJOGna8uNJPx1bTkZJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK158Q3a8tMl4UltOUnCSVtuJeE3a8tPl4Qbg6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q1LxYk4Ult+enaciMJT2vLT5eEJ7XlSYOkNYOkNYOkNYOkNYOkNYOkNYOkNS/0JW05ScKnteUkCSdJuNEWnQ2S1gyS1gyS1gyS1gyS1gyS1gyS1rzQlyThRltuJOGdJJy05SQJJ23RnUHSmkHSmkHSmkHSmkHSmkHSmkHSmhcL2vLbteUkCU9qyztJOEnCSVtOknDSlqe15TcbJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK158Q2S8Ncl4aQtJ0k4actJEt5py0kSfrIk/HWDpDWDpDWDpDWDpDWDpDWDpDWDpDUvvqAt/3dtOUmCztryfzdIWjNIWjNIWjNIWjNIWjNIWjNIWvPiC5Jw0pYbSfi/S8JJW95Jwicl4aQtt5Jw0paTJDypLSeDpDWDpDWDpDWDpDWDpDWDpDWDpDXpPzwsCSdtuZGEd9pykoSfrC23knCjLU9KwtPa8kmDpDWDpDWDpDWDpDWDpDWDpDWDpDUvfoAk3GjLO0k4acuNJOjz2nKShCe15WSQtGaQtGaQtGaQtGaQtGaQtGaQtObFgracJOGkLSdJeKctn9SWkyR8WltuJOGkLSdtuZWEG205ScKNQdKaQdKaQdKaQdKaQdKaQdKaQdKaF1+QhJO2nCTh05Jwoy0nbbnRlltJeFISTtpykoRbbTlpy40kPGmQtGaQtGaQtGaQtGaQtGaQtGaQtGaQtObFL5CEk7bcSsKNJJy05UYS3mnLjSQ8qS23knDSlie15cYgac0gac0gac0gac0gac0gac0gaU36D28k4UZbnpSEW205ScKT2vK0JNxoy0kSPq0tJ0l4UltOBklrBklrBklrBklrBklrBklrBklrXnyDtpwk4dPa8psl4WltOUnCSVtOknDSlneScJKEJ7XlxiBpzSBpzSBpzSBpzSBpzSBpzSBpTfoPbyThpC1PSsJJW95Jwo223EjC09pyIwm/XVtOknDSlicNktYMktYMktYMktYMktYMktYMktak/6C3knDSlpMk3GjLpyXhpC1PS8JJW06ScKMtNwZJawZJawZJawZJawZJawZJawZJa158QRL+urZ8UltOkvC0tjwpCSdtuZWEk7acJOEkCSdtORkkrRkkrRkkrRkkrRkkrRkkrRkkrXnxDdry0yXhk9pykoSTtryThJO2nCThSW356dpykoQbg6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q1LxYk4Ult0ecl4dPacpKEk7Y8aZC0ZpC0ZpC0ZpC0ZpC0ZpC0ZpC05oW+RRJO2nLSlpMkPK0tJ0n4tLacJOGkLSdJeNIgac0gac0gac0gac0gac0gac0gac0LfUlbTpJwkoQbbXknCTeScKMtJ0m4lYSTtpwk4ZMGSWsGSWsGSWsGSWsGSWsGSWsGSWteLGiL7iThaW15UltOknArCT/ZIGnNIGnNIGnNIGnNIGnNIGnNIGnNi2+QhL8uCSdtuZGEny4JJ2250ZZ3knCjLTeScGOQtGaQtGaQtGaQtGaQtGaQtGaQtCb9B0krBklrBklrBklrBklrBklrBklrBklr/gM46H7deDR9wAAAAABJRU5ErkJggg==" alt="qr_grand_hall" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_grand_hall</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">TRUTH-SEWEDY</span>
+        </div>
+        <div class="content-preview">مفتاح المنصة الكبرى: TRUTH-SEWEDY</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_130245965.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_130245965.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_130245965.jpg</code> • الموقع: بهو القاعة الكبرى والمسرح</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#7</span>
+        <span class="era-badge">العصر 2 • مستوى 2 • تفريعة [A]</span>
+        <span class="card-title">كود لغز رسالة الغريب الأولى (QR) (تفريعة A)</span>
+      </div>
+      <div class="location-badge">📍 مبنى الفصول أ - الدور الأول</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQiSURBVO3Bga0cBxYDwebD5p8yT4AD2DlgTOlbXZX+gqSJQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJlD0syHh5Kgf7RlLQnftOWJJHzTlieSoH+05ZtD0swhaeaQNHNImjkkzRySZg5JM4ekmUPSzIeXteWnSsLfoC1rbfmpkvCWQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkPv0ES1tqyloSlJLylLWtJWGvL0iFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmg36rtujvcUiaOSTNHJJmDkkzh6SZQ9LMIWnmkDTzQX+dJHzTFr3vkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaQNPPhN2iL/j9JeEtb/kRt+a87JM0ckmYOSTOHpJlD0swhaeaQNHNImvnwsiTo92jLE0n4pi1vSoLgkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaQNJP+gv4VSVhqi/5sh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJn0Fx5IwhNt+SYJP1lb3pKEtba8JQk/WVuWDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmY+/HBtWUvCE235pi1rSfimLU+05S1JeKIt3yThiSS8pS3fHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmY+PNSWt7TliSR8k4Qn2vJNEp5oy1oSvmnLWhLe0pYnkrDUlrcckmYOSTOHpJlD0swhaeaQNHNImjkkzaS/MJaEJ9qi55Kw1pY/URLW2vLNIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaebDQ0l4oi1LSXiiLd8k4Ym2PJGEb9ryRBK+acsTSfiva8sTSVg6JM0ckmYOSTOHpJlD0swhaeaQNHNImkl/Qf+KJHzTlj9REn6ytrwlCU+05ZtD0swhaeaQNHNImjkkzRySZg5JM4ekmUPSzIeHkqB/tOWJtnyThCfa8k0S/lRteUsSltrylkPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMh5e15adKwpuS8E1bnkjCW9ryTRKeaMtbkvCWJLylLW85JM0ckmYOSTOHpJlD0swhaeaQNHNImvnwGyRhrS0/WVu+ScJb2vJEEp5oy1JbnkjCN0l4oi3fHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmY+6K+ThD9RW96ShCfasnRImjkkzRySZg5JM4ekmUPSzCFp5pA080E/QhKW2vKnSsJPdUiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr58Bu05W/QlqW2/KmSIDgkzRySZg5JM4ekmUPSzCFp5pA0c0ia+fCyJOgfSXhLW96ShD9RW55IwjdteSIJ37TlLYekmUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZ9BckTRySZg5JM4ekmUPSzCFp5pA0c0iaOSTN/A+sR/euWqs8UwAAAABJRU5ErkJggg==" alt="qr_e2_l2_a" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e2_l2_a</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">PTOLEMY-8</span>
+        </div>
+        <div class="content-preview">رمز المخطوطة السري: PTOLEMY-8 (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_130512501.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_130512501.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_130512501.jpg</code> • الموقع: مبنى الفصول أ - الدور الأول</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#8</span>
+        <span class="era-badge">العصر 2 • مستوى 2 • تفريعة [A]</span>
+        <span class="card-title">ملصق سلم 3 - كمثرى القيم</span>
+      </div>
+      <div class="location-badge">📍 سلم 3 (الدور الأول بجانب كمثرى القيم)</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAARmSURBVO3BQa7YBhYDwebDv/+VOQZ8AGmh0M6kq9JfkDRxSJo5JM0ckmYOSTOHpJlD0swhaeaQNHNImvnhpSTot7Z8JQl/o7a8kQT91pYnh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkfPtaWf6skfCkJT9ryRhKetOWNJKy15d8qCV85JM0ckmYOSTOHpJlD0swhaeaQNHNImvnhD0jCWlvW2vIkCfotCWttWTokzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTN/KA/qi1vJOFJEt5oi/6MQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkf9I9JwpO2vNGWryThSVv0vUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMD39AW/4L2vIkCWtt+Ru15f/dIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swPH0uCfkvCk7a8kYQnbXkjCU/a8qUkCA5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkz6S/oPyUJT9qi7x2SZg5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmfngpCW+05UkS3mjLkyS80ZYnSXijLV9Jwhtt+X+XhDfa8pUkPGnLVw5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmfvhYEv5GSXjSlrW2vJGEJ235L0jCk7a80ZYnSXijLU8OSTOHpJlD0swhaeaQNHNImjkkzRySZg5JMz+81JY3kvCVJDxpyxtJeJKEtbb8myXhb5SEv9EhaeaQNHNImjkkzRySZg5JM4ekmUPSzA8fa8uTJLzRlidJeKMtX0nCG215koQ32vI3astXkvCVtnwlCV85JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzfzwUhLeaMtSW76ShC8l4Ulb3kjCV9ryb9aWryThSVu+ckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDST/oL+EUlYastXkvBGW76ShDfa8iQJa215ckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJpJf+GFJOi3tnwlCW+05UkS9FtbvpKEN9ry5JA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmkDTzw8fa8m+VhLW2fKUtbyThSVvWkvBGW76ShKVD0swhaeaQNHNImjkkzRySZg5JM4ekmR/+gCSstWUtCUtt+Vsl4Ulb3kjCk7Z8pS1fOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM38oH9MW54k4W+UhC+1RXBImjkkzRySZg5JM4ekmUPSzCFp5pA084P+MUl40pY3kvAkCX+rJCwl4Y22PEnCG215ckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr54Q9oy39BW77SlidJ+EpbvpSEr7TlK0l40pavHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM2kv/BCEvRbW95Iwlfa8pUkfKUtX0nCV9ryRhK+0pYnh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJn0FyRNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM38D33kG8N4ANkyAAAAAElFTkSuQmCC" alt="qr_stairs_3" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_stairs_3</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">PTOLEMY-8</span>
+        </div>
+        <div class="content-preview">رسالة الغريب: PTOLEMY-8</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_130512501.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_130512501.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_130512501.jpg</code> • الموقع: سلم 3 (الدور الأول بجانب كمثرى القيم)</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#9</span>
+        <span class="era-badge">العصر 2 • مستوى 2 • تفريعة [B]</span>
+        <span class="card-title">كود لغز رسالة الغريب الأولى (QR) (تفريعة B)</span>
+      </div>
+      <div class="location-badge">📍 مبنى الفصول ب - الدور الثاني</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQzSURBVO3B0Y0cgRUDwebD5p8yLUAB7HyMqTu7q9I/kDRxSJo5JM0ckmYOSTOHpJlD0swhaeaQNHNImvnwUBL0V1vekoS3tOWJJHzTlieSoL/a8s0haeaQNHNImjkkzRySZg5JM4ekmUPSzCFp5sPL2vJbJeE3S8JP1ZbfKglvOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr58A8kYa0ta0n4pi1PJOEtbfmJkrDWlqVD0swhaeaQNHNImjkkzRySZg5JM4ekmUPSzAf9Cm15SxK+aYved0iaOSTNHJJmDkkzh6SZQ9LMIWnmkDTzQf9UEp5oi36/Q9LMIWnmkDRzSJo5JM0ckmYOSTOHpJlD0syHf6At+qstb0nCE235idryv+6QNHNImjkkzRySZg5JM4ekmUPSzCFp5sPLkqD3JeGbtjyRhG/a8qYkCA5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkz6R/ovyIJS23Rz3ZImjkkzRySZg5JM4ekmUPSzCFp5pA0c0ia+fBQEp5oyzdJ+M3a8kRblpLwRFvekoTfrC1Lh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTPpH/xiSXhLW55IwhNteUsSvmnLE0n4pi1rSXiiLd8kYa0t3xySZg5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmPjyUhCfa8pYkfNOWJ5LwTRLWkvCbJeEtbXkiCUttecshaeaQNHNImjkkzRySZg5JM4ekmUPSTPoHDyThLW15IglLbXlTEr5pyxNJ+KYtb0nCE235iZKw1pZvDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTMf/oEkPNGWb5LwRFu+ScITbfnNkvC/ri1PJGHpkDRzSJo5JM0ckmYOSTOHpJlD0swhaSb9A/1XJGGpLW9Jwm/Wlrck4Ym2fHNImjkkzRySZg5JM4ekmUPSzCFp5pA0c0ia+fBQEvRXW55oy1ISfqq2vCUJS215yyFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmw8va8lsl4U1J+KYtTyThLW35JglPtOUtSXhLEt7SlrcckmYOSTOHpJlD0swhaeaQNHNImjkkzXz4B5Kw1hY915YnkvBEW5ba8kQSvknCE2355pA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmkDTzQf9UEp5oyzdJeCIJP1Fb3pKEJ9qydEiaOSTNHJJmDkkzh6SZQ9LMIWnmkDTzQb9CEpba8lMl4bc6JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzXz4B9ry/6At3yThLW35qZIgOCTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr58LIk6K8kvKUtb0nCT9SWJ5LwTVueSMI3bXnLIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaSb9A0kTh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTP/AVOc9MYDX203AAAAAElFTkSuQmCC" alt="qr_e2_l2_b" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e2_l2_b</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">ALEX-QUEST</span>
+        </div>
+        <div class="content-preview">رمز المخطوطة السري: ALEX-QUEST (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_130512501.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_130512501.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_130512501.jpg</code> • الموقع: مبنى الفصول ب - الدور الثاني</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#10</span>
+        <span class="era-badge">العصر 2 • مستوى 2 • تفريعة [C]</span>
+        <span class="card-title">كود لغز رسالة الغريب الأولى (QR) (تفريعة C)</span>
+      </div>
+      <div class="location-badge">📍 الملاعب والقاعة الكبرى</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQsSURBVO3B0Y0cgRUDwebD5Z8yLUAB7HyMqT27q9I/kDRxSJo5JM0ckmYOSTOHpJlD0swhaeaQNHNImvnhoSTor7b8Zkn4pC1PJEF/teWTQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swPL2vLb5WEtSS8pS3fqi2/VRLeckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDTzwz+QhLW2rCVhKQm/WRLW2rJ0SJo5JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTN/KBfoS1vSYL+jUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMD/9AW/RXW55Iwlva8o3a8r/ukDRzSJo5JM0ckmYOSTOHpJlD0swhaeaHlyVB/0ZbnkjCJ215UxIEh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJn0D/RfkYSltui7HZJmDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmZ+eCgJT7TlkyT8Zm15oi2fJOGJtnyShCfa8pYk/GZtWTokzRySZg5JM4ekmUPSzCFp5pA0c0iaSf/ggSSsteUtSfikLU8k4Ym2fKMkfNKWtSQ80ZZPkrDWlk8OSTOHpJlD0swhaeaQNHNImjkkzRySZg5JMz+8rC1vScJSEp5oyxNJWGrLWhLe0pYnkrDUlrcckmYOSTOHpJlD0swhaeaQNHNImjkkzaR/8EASvlFbnkjCJ215IglvacsTSXhLWz5JwhNt+UZJWGvLJ4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZHx5qyxNJeEtbPknCE235JAlPtOWJJHyShCfa8pYk/K9ryxNJWDokzRySZg5JM4ekmUPSzCFp5pA0c0iaSf9A/xVJ+KQtTyThk7a8JQm/WVvekoQn2vLJIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaSb9gweSoL/a8o2S8K3a8pYkfNKWb3RImjkkzRySZg5JM4ekmUPSzCFp5pA0c0ia+eFlbfmtkvCmJLylLW9pyydJeKItb0nCW5Lwlra85ZA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmh38gCWtt+UZt+UZteSIJT7RlqS1PJOGTJDzRlk8OSTOHpJlD0swhaeaQNHNImjkkzRySZg5JMz/oV0jCW5LwjdryliQ80ZalQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkf9E8l4Ru15Vsl4bc6JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzfzwD7Tl/0Fb3pKET9ryrZIgOCTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr54WVJ0F9J+KQta0n4Rm15IgmftOWJJHzSlrcckmYOSTOHpJlD0swhaeaQNHNImjkkzRySZtI/kDRxSJo5JM0ckmYOSTOHpJlD0swhaeaQNPMfGcH4tIuG4V8AAAAASUVORK5CYII=" alt="qr_e2_l2_c" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e2_l2_c</code></div>
+        
+        <div class="content-preview">رمز المخطوطة السري: الغريب (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_130512501.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_130512501.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_130512501.jpg</code> • الموقع: الملاعب والقاعة الكبرى</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#11</span>
+        <span class="era-badge">العصر 2 • مستوى 4</span>
+        <span class="card-title">ملصق جدارية إلكتروميتر</span>
+      </div>
+      <div class="location-badge">📍 جدارية شركة السويدي إلكتروميتر</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAUtSURBVO3BgY0bSRAEwawG/Xe5XhbMERhtk7rPiPQPJK0YJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK158YYk/HZteVISTtryaUk4acuNJPx2bTkZJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK158Re05dsl4UYS/u+ScNKWG235dkm4MUhaM0haM0haM0haM0haM0haM0ha82JBEp7Ulqe15SQJJ235tCSctOXbJeFJbXnSIGnNIGnNIGnNIGnNIGnNIGnNIGnNC/0aSThpy0kSTtqiO4OkNYOkNYOkNYOkNYOkNYOkNYOkNS/0liSctOVJSbiVBH3WIGnNIGnNIGnNIGnNIGnNIGnNIGnNiwVt+de15SQJN9py0pZbSfjXteVfNkhaM0haM0haM0haM0haM0haM0haM0ha8+IvSMJvl4STtpwk4UYSftKWG205ScJJW24k4bcbJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK1J/0CPS8KNtjwtCTfaorNB0ppB0ppB0ppB0ppB0ppB0ppB0poXb0jCSVtOknDSlpMknLTlJ0k4acuNJJy05du15dsl4aQtN5Jw0pYbg6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q1L/6CJJy05dPaciMJJ205ScKnteVGEp7Ulp+05UYSbiThpC0ng6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q1L97QlhtJuNGWkyTcass3a8utJJy05aQtN5JwkoSnteVGEm4MktYMktYMktYMktYMktYMktYMkta8eEMSTtpy0pYbSbjVlicl4aQtJ0m4lYQbSbjRlhtt+XZtuTFIWjNIWjNIWjNIWjNIWjNIWjNIWvPiL0jCSVtutOVWEm605SQJn9aWkySctOUkCSdJ+LQknLTlRhJO2nIySFozSFozSFozSFozSFozSFozSFozSFrz4g1tuZGEk7acJOFWWz4pCb9dW06S8H83SFozSFozSFozSFozSFozSFozSFrz4g1JOGnLSVue1JafJOFGW07acpKEk7bcSsJJW2605SQJT0vCjSR80iBpzSBpzSBpzSBpzSBpzSBpzSBpTfoHl5LwpLb8dkk4acvTkvCkttxKwklbnpSEk7acDJLWDJLWDJLWDJLWDJLWDJLWDJLWvHhDEk7aciMJN5Lw7dpy0paTJPykLd8sCU9LwklbTpJw0pYbg6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q1L97Qlie15UZbnpaEJyXhVhJO2vKktjwtCZ+UhJO2nAyS1gyS1gyS1gyS1gyS1gyS1gyS1rx4QxJ+u7actOVGEp7WlpMkfFISTtpyqy032nKShBuDpDWDpDWDpDWDpDWDpDWDpDWDpDUv/oK2fLskfFJbbiThJ0m40ZaTJNxoy7dLwpMGSWsGSWsGSWsGSWsGSWsGSWsGSWsGSWteLEjCk9rytCR8UltuJeFJSfi0JNxoy0kSbgyS1gyS1gyS1gyS1gyS1gyS1gyS1rzQW9pykoT/u7bcSMKttpwk4UZbbgyS1gyS1gyS1gyS1gyS1gyS1gyS1rzQW5Jw0pZPS8JJW06ScNKWkySctOVpSThpy40knLTlZJC0ZpC0ZpC0ZpC0ZpC0ZpC0ZpC05sWCtvzr2nIjCTfa8pO2PCkJT2rLpyXhpC03BklrBklrBklrBklrBklrBklrBklrXvwFSfjtknDSlhttOUnCT9rySW25kYRbbXlSEk7acjJIWjNIWjNIWjNIWjNIWjNIWjNIWpP+gaQVg6Q1g6Q1g6Q1g6Q1g6Q1g6Q1g6Q1/wEuQovTITDaXQAAAABJRU5ErkJggg==" alt="qr_electrometer" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_electrometer</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">49</span>
+        </div>
+        <div class="content-preview">أرقام الإحصاء: 49 دولة و 35 مليون عداد</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131609366.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131609366.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131609366.jpg</code> • الموقع: جدارية شركة السويدي إلكتروميتر</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#12</span>
+        <span class="era-badge">العصر 2 • مستوى 8</span>
+        <span class="card-title">ملصق ركن الموسيقى</span>
+      </div>
+      <div class="location-badge">📍 باب غرفة الموسيقى والفنون</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAU+SURBVO3BgW0dCw4EwR7i5Z/ynCOgBKyX0vd1VfoHkk4Mks4Mks4Mks4Mks4Mks4Mks4Mks4Mks58+IYk/OvasknCE215IglPteUnJeFf15bNIOnMIOnMIOnMIOnMIOnMIOnMIOnMh7+gLb9dEt7Ulk0SnmjLU0nYtGWThE1bnmjLb5eEJwZJZwZJZwZJZwZJZwZJZwZJZwZJZz4cSMKb2vLbteWJJDzVlk0SNm35aUl4U1veNEg6M0g6M0g6M0g6M0g6M0g6M0g680Hf0pZNEp5oy1Nt2SRh05ZNEjZt0W6QdGaQdGaQdGaQdGaQdGaQdGaQdOaDviUJm7b8tCTodxsknRkknRkknRkknRkknRkknRkknflwoC3/dW15IglPtOUrSfjXteW/bJB0ZpB0ZpB0ZpB0ZpB0ZpB0ZpB0ZpB05sNfkIR/XRI2bXmiLZskfKUtmyT8Zkn41w2SzgySzgySzgySzgySzgySzgySzqR/oMeS8Ka2PJWEN7VFu0HSmUHSmUHSmUHSmUHSmUHSmUHSmQ/fkIRNW55Iwn9dWzZJ2LRlk4S3tWWThE0SNm15KgmbtmyS8Ka2bAZJZwZJZwZJZwZJZwZJZwZJZwZJZz78BUnYtOVNbXkqCZu2vCkJT7Vlk4RNEjZteVMSnkrCpi0/aZB0ZpB0ZpB0ZpB0ZpB0ZpB0ZpB05sM3tOWJJGza8rYkbNqyScKmLZu2PJGE3y4Jm7Y81ZYnkvCmtmwGSWcGSWcGSWcGSWcGSWcGSWcGSWc+HGjLJglva8ubkrBpyxNt+WlJ2LRlk4RNW55KwhNt2SThiUHSmUHSmUHSmUHSmUHSmUHSmUHSmQ8HkrBpyyYJm7Z8JQmbtrwpCZu2PJWEN7Xlt2vLE0l40yDpzCDpzCDpzCDpzCDpzCDpzCDpzCDpzIdvSMITbdkk4YkkfKUtmyRs2rJJwpuS8JW2PJGETRI2bdm05akkbNryprY8MUg6M0g6M0g6M0g6M0g6M0g6M0g6k/7BF5LwprZskrBpy1eS8Ka2/HZJeKItTyRh05a3JeFNbdkMks4Mks4Mks4Mks4Mks4Mks4Mks58+AvasknCm5LwlbY8kYQnkrBpyyYJv10SNm3ZJOG3a8sTg6Qzg6Qzg6Qzg6Qzg6Qzg6Qzg6QzHw60ZZOETVueSsKmLU8k4YkkPNWWNyXhiSS8rS2bJGza8qZB0plB0plB0plB0plB0plB0plB0pkP39CWN7XlbW15U1ueSMKmLb9dW96WhDclYdOWJwZJZwZJZwZJZwZJZwZJZwZJZwZJZz58QxL+dW15UxI2bdkk4W1teVMSNm15KgmbtmySsEnCpi2bQdKZQdKZQdKZQdKZQdKZQdKZQdKZD39BW367JLwpCZu2bJKwactXkrBpyyYJb2rLb9eWNw2SzgySzgySzgySzgySzgySzgySzgySznw4kIQ3teWntWWThH9dEn5aWzZJ2LRlk4RNWzaDpDODpDODpDODpDODpDODpDODpDMf9Cu0ZZOEn9aWTRLe1pZNEjZt2SThTYOkM4OkM4OkM4OkM4OkM4OkM4OkMx/0LW15UxI2bflKEn5SWzZJeCoJm7ZskvCTBklnBklnBklnBklnBklnBklnBklnPhxoy/+7tmySsEnC29ryprZskvCVtmyS8JsNks4Mks4Mks4Mks4Mks4Mks4Mks58+AuS8K9Lwv+7JGza8kRb3taWJ5LwxCDpzCDpzCDpzCDpzCDpzCDpzCDpTPoHkk4Mks4Mks4Mks4Mks4Mks4Mks4Mks78D7KllNml5o4TAAAAAElFTkSuQmCC" alt="qr_music_corner" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_music_corner</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">MICROPHONE</span>
+        </div>
+        <div class="content-preview">نغمة الحقيقة: MICROPHONE</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_130814993.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_130814993.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_130814993.jpg</code> • الموقع: باب غرفة الموسيقى والفنون</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#13</span>
+        <span class="era-badge">العصر 3 • مستوى 2 • تفريعة [A]</span>
+        <span class="card-title">كود لغز رسالة صلاح الدين الزاجلة (QR) (تفريعة A)</span>
+      </div>
+      <div class="location-badge">📍 مبنى الفصول أ - الدور الأول</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQ9SURBVO3B0Y0cgRUDwebD5p8yLUAB7HyMeSe7q9I/kDRxSJo5JM0ckmYOSTOHpJlD0swhaeaQNHNImvnwUBL0V1vekoQn2vIbJUF/teWbQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJlD0syHl7XlX5WEtbY8kYRv2vJbteVflYS3HJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM18+AFJWGvLWhJ+oyR805a1JKy1ZemQNHNImjkkzRySZg5JM4ekmUPSzCFp5pA080E/qi1PJOGbJOh3OyTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr5oB+VhLe05Ykk6GcckmYOSTOHpJlD0swhaeaQNHNImjkkzRySZj78gLbor7a8JQlPtOU3asv/ukPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZDy9Lgt6XhG/a8kQSvmnLm5IgOCTNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM2kf6D/iiR80xb9/zgkzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTNfHgoCU+05Zsk/Mva8kRbvknCE235JglPtOUtSfiXtWXpkDRzSJo5JM0ckmYOSTOHpJlD0swhaSb9gweS8Ja2rCXhm7Y8kYQn2vKWJHzTlieS8E1b1pLwRFu+ScJaW745JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzXz4xZKwlIQn2vKWJPxGSVhryxNJWGrLWw5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmPvxibfkmCW9pyxNJeKItS0lYa8taW75JwluS8ERbvjkkzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTNfHhZW75JwhNteUtbvknCE215S1ueSMI3bXkiCf/r2vJEEpYOSTOHpJlD0swhaeaQNHNImjkkzRySZtI/0H9FEpba8pYk/Mva8pYkPNGWbw5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkzHx5Kgv5qyxNtWUrCb9WWtyRhqS1vOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM18eFlb/lVJeFMSvmnLE0l4S1u+ScITbXlLEt6ShLe05S2HpJlD0swhaeaQNHNImjkkzRySZg5JMx9+QBLW2vIbJeGJtnyThLe05YkkPNGWpbY8kYRvkvBEW745JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzXzQj2rLWhJ+o7a8JQlPtGXpkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaDflQSnmjLUlt+qyT8qw5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkzH35AW/4ftOUtSfimLb9VEgSHpJlD0swhaeaQNHNImjkkzRySZg5JMx9elgT9lYS3tOUtSfiN2vJEEr5pyxNJ+KYtbzkkzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTNpH8gaeKQNHNImjkkzRySZg5JM4ekmUPSzCFp5j/bQP++ExIL0QAAAABJRU5ErkJggg==" alt="qr_e3_l2_a" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e3_l2_a</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">HIKMA-1187</span>
+        </div>
+        <div class="content-preview">رمز المخطوطة السري: HIKMA-1187 (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131951162.MP.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131951162.MP.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131951162.MP.jpg</code> • الموقع: مبنى الفصول أ - الدور الأول</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#14</span>
+        <span class="era-badge">العصر 3 • مستوى 2 • تفريعة [A]</span>
+        <span class="card-title">ملصق سلم 4 - معمل اللغات</span>
+      </div>
+      <div class="location-badge">📍 سلم 4 (مدخل معمل اللغات)</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAARHSURBVO3BQa4ciRUDweRD3//KtAABXsyma1Gm9McZkf6CpIlD0swhaeaQNHNImjkkzRySZg5JM4ekmUPSzIeHkqDf2qLfkqDf2vLNIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaebDy9ryUyVhLQlvacvfqi0/VRLeckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDTz4Q9Iwlpb1pLwTVvWkvBNW9aSsNaWpUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMB/1RSXiiLfr5Dkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmY+6EdIwjdt0d/tkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaQNPPhD2iLfmvLE0n4t2vLv90haeaQNHNImjkkzRySZg5JM4ekmUPSzIeXJUH6pyQIDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTMfHmqL9E9t0XOHpJlD0swhaeaQNHNImjkkzRySZg5JM4ekmQ8PJeGJtnyThJ+sLU+05ZskPNGWb5KwloSfrC1Lh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTPpL7woCd+05YkkfNOWJ5LwTVueSMITbXlLEt7Slm+S8ERb3pKEJ9ryTRLW2vLNIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaD/isJb0rCN215oi1vScI3bVlryxNJWGrLWw5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmPjyUhH+7trwpCW9Jwlva8k0SnmjLW5LwRFu+ScJbkvBEW745JM0ckmYOSTOHpJlD0swhaeaQNHNImjkkzXx4qC1PJOGbJDzRlm+S8ERbvknCE21Za8s3SXhLW55Iwlva8pa2PJGEpUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZ9Bf0P5GEt7TlmyS8pS1rSXhLW96ShCfa8s0haeaQNHNImjkkzRySZg5JM4ekmUPSzCFp5sNDSdBvbXmiLd8k4W+UhCfa8pa2PJGEpba85ZA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmkDTz4WVt+amS8KYkvCUJb2nLN0lYS8JbkvBEW75JwhNt+eaQNHNImjkkzRySZg5JM4ekmUPSzCFp5sMfkIS1tvyN2vJEEr5pyxNJ+KYtTyThibYsteWJJCwdkmYOSTOHpJlD0swhaeaQNHNImjkkzRySZj7oj0rCE235JglPtOVv1Ja3JOGJtiwdkmYOSTOHpJlD0swhaeaQNHNImjkkzXzQH9WWtSS8pS1rSfipDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTMf/oC2/D9oy1uS8E1b3pKENyVBcEiaOSTNHJJmDkkzh6SZQ9LMIWnmkDTz4WVJ0G9J+KYta0l4SxLe0pYnkvBNW55IwjdtecshaeaQNHNImjkkzRySZg5JM4ekmUPSzCFpJv0FSROHpJlD0swhaeaQNHNImjkkzRySZg5JM/8BCWr+y8LFbbYAAAAASUVORK5CYII=" alt="qr_stairs_4" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_stairs_4</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">HIKMA-1187</span>
+        </div>
+        <div class="content-preview">رسالة الحمام الزاجل: HIKMA-1187</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131951162.MP.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131951162.MP.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131951162.MP.jpg</code> • الموقع: سلم 4 (مدخل معمل اللغات)</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#15</span>
+        <span class="era-badge">العصر 3 • مستوى 2 • تفريعة [B]</span>
+        <span class="card-title">كود لغز رسالة صلاح الدين الزاجلة (QR) (تفريعة B)</span>
+      </div>
+      <div class="location-badge">📍 مبنى الفصول ب - الدور الثاني</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQgSURBVO3B0Y1bCxYDweaB8k+Za8AB6H5oORq/rkr/QNLEIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaebFQ0nQX23RX0nQX21555A0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmkDTz4sPa8lslYS0J36gtn9SW3yoJn3JImjkkzRySZg5JM4ekmUPSzCFp5pA08+IHJGGtLWtJeKctTyThnbb8ZklYa8vSIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaF/hlJeKIt+hmHpJlD0swhaeaQNHNImjkkzRySZg5JMy/0z2jLE0l4py36vEPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMix/QFn1eEp5oyzdqy7/ukDRzSJo5JM0ckmYOSTOHpJlD0swhaebFhyVBP6MtTyThnbZ8UhIEh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJn0D/R/kYR32qL/jkPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMi4eS8ERb3knCb9aWJ9ryKUn4lLZ8ShJ+s7YsHZJmDkkzh6SZQ9LMIWnmkDRzSJo5JM2kf/BBSfhGbfmUJDzRlm+UhHfaspaEJ9ryThLW2vLOIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaebFD2jLE0l4py2fkoRvlYR32vIpSVhryxNJWGrLpxySZg5JM4ekmUPSzCFp5pA0c0iaOSTNpH8wloRPactaEtbaspSEJ9ryjZKw1pZ3Dkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTMvHkrCWlveScITbXknCU+0ZS0J77TliST869ryRBKWDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmbSP9D/RRLeacs3SsJv1pZPScITbXnnkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaQNPPioSTor7Y80ZZ3kvBEW95Jwrdqy6ckYaktn3JImjkkzRySZg5JM4ekmUPSzCFp5pA0c0iaefFhbfmtkvBJSXinLU8k4VPa8k4SnmjLpyThU5LwKW35lEPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZFz8gCWtt+UZJ+EZteSIJT7RlqS1PJOGdJDzRlncOSTOHpJlD0swhaeaQNHNImjkkzRySZg5JMy/0K7TlnSQ8kYRv1JZPScITbVk6JM0ckmYOSTOHpJlD0swhaeaQNHNImnmhH9WWb9SWb5WE3+qQNHNImjkkzRySZg5JM4ekmUPSzCFp5pA08+IHtOW/oC3vJOFT2vKtkiA4JM0ckmYOSTOHpJlD0swhaeaQNHNImnnxYUnQX0n4lLZ8ShK+UVueSMI7bXkiCe+05VMOSTOHpJlD0swhaeaQNHNImjkkzRySZg5JM+kfSJo4JM0ckmYOSTOHpJlD0swhaeaQNHNImvkfgNrxtJRbcOcAAAAASUVORK5CYII=" alt="qr_e3_l2_b" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e3_l2_b</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">SALADIN-CAMP</span>
+        </div>
+        <div class="content-preview">رمز المخطوطة السري: SALADIN-CAMP (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131951162.MP.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131951162.MP.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131951162.MP.jpg</code> • الموقع: مبنى الفصول ب - الدور الثاني</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#16</span>
+        <span class="era-badge">العصر 3 • مستوى 2 • تفريعة [C]</span>
+        <span class="card-title">كود لغز رسالة صلاح الدين الزاجلة (QR) (تفريعة C)</span>
+      </div>
+      <div class="location-badge">📍 الملاعب والقاعة الكبرى</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAQ2SURBVO3BgY0kiREDwWRh/HeZOuANmBbQ4u3qMyL9A0kTh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkPDyVB/2jLW5LwlrasJUH/aMs3h6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkPL2vLb5WEf4MkfNOWN7Xlt0rCWw5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmPvwFSVhry1oS9FwS1tqydEiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr5oF+hLW9pi/6OQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkP+qva8kQSvmnLE0n4pi163yFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmw1/QFv132vJNEp5oy0/Ulv93h6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTMfXpYEvS8J37TliSR805Y3JUFwSJo5JM0ckmYOSTOHpJlD0swhaeaQNHNImkn/QP8TSfimLfr3OCTNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM18eCgJT7TlmyT8Zm15oi3fJGGtLW9Jwm/WlqVD0swhaeaQNHNImjkkzRySZg5JM4ekmfQPHkjCE215SxK+actaEp5oy1uS8E1bnkjCN21ZS8ITbfkmCWtt+eaQNHNImjkkzRySZg5JM4ekmUPSzCFp5pA08+GhtjyRhG/a8pYkPNGWb5LwRFueSMI3bfmJkrDWlieSsNSWtxySZg5JM4ekmUPSzCFp5pA0c0iaOSTNpH/wQyXhLW1ZS8Jb2vJNEp5oyzdJeKItP1ES1tryzSFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmw8uS8Ja2fJOEtyThibY80ZZvkvCWtjyRhP93bXkiCUuHpJlD0swhaeaQNHNImjkkzRySZg5JM+kf6H8iCW9py1ISfrO2vCUJT7Tlm0PSzCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMh4eSoH+05Ym2fJOEtyThp2rLW5Kw1Ja3HJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmY+vKwtv1US3pSEn6gt3yThiba8JQlvScJb2vKWQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJkPf0ES1tqi59ryRBKeaMtSW55IwjdJeKIt3xySZg5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmPuivassTSXhLEn6itrwlCU+0ZemQNHNImjkkzRySZg5JM4ekmUPSzCFp5oN+hbZ8k4S3tOWnSsJvdUiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr58Be05d+gLW9Jwjdt+amSIDgkzRySZg5JM4ekmUPSzCFp5pA0c0ia+fCyJOgfSfimLWtJ+Ina8kQSvmnLE0n4pi1vOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM2kfyBp4pA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmP401AMDv5bokAAAAAElFTkSuQmCC" alt="qr_e3_l2_c" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e3_l2_c</code></div>
+        
+        <div class="content-preview">رمز المخطوطة السري: القلعة (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131951162.MP.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131951162.MP.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131951162.MP.jpg</code> • الموقع: الملاعب والقاعة الكبرى</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#17</span>
+        <span class="era-badge">العصر 4 • مستوى 2 • تفريعة [A]</span>
+        <span class="card-title">كود لغز ملاحظة الأرشيف الخديوي (QR) (تفريعة A)</span>
+      </div>
+      <div class="location-badge">📍 مبنى الفصول أ - الدور الأول</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAARKSURBVO3B0Q0UCRQDwfbT5p+yD4kAZj8GA0dXpT8gaeKQNHNImjkkzRySZg5JM4ekmUPSzCFp5pA08+FLSdBPbXlLEt7SlrUk6Ke2PDkkzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTNfHhZW/5WSXhTEt7Slrck4Ulb3tSWv1US3nJImjkkzRySZg5JM4ekmUPSzCFp5pA08+E3SMJaW9ba8iQJ+ikJa21ZOiTNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM180G/Vlm8k4UlbvtEW/R6HpJlD0swhaeaQNHNImjkkzRySZg5JMx/0yyThSVvWkvCkLXrfIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swhaebDb9CWf0FbniRBP7Xl/+6QNHNImjkkzRySZg5JM4ekmUPSzCFp5sPLkqCfkvCkLd9Iwt8sCYJD0swhaeaQNHNImjkkzRySZg5JM4ekmUPSTPoD+l9IwlvaovcdkmYOSTOHpJlD0swhaeaQNHNImjkkzRySZj58KQnfaMuTJHyjLU+S8I22PEnCN9qyloS3tOVPlIRvtOUtSXjSlrcckmYOSTOHpJlD0swhaeaQNHNImjkkzXz4Ulv+79ryjSSsteVJEv4FSXjSlm+05UkSvtGWJ4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZDy9LwluS8KQtb0nCnyoJT9ryjSQ8acs3kvCNtiwl4U90SJo5JM0ckmYOSTOHpJlD0swhaeaQNJP+wFgS1tryliR8oy1PkvCWtvwLkvCkLW9Jwjfa8uSQNHNImjkkzRySZg5JM4ekmUPSzCFp5pA08+FlSfgTJeFP1JZvJOEtSfibteUtSXjSlrcckmYOSTOHpJlD0swhaeaQNHNImjkkzaQ/oF8iCX+rtnwjCWtteZKEtbY8OSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM2kP/CFJOintrwlCX+ztnwjCUtteUsSvtGWJ4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkzh6SZDy9ry98qCX+qtrwlCU/a8qa2PEnCN9qy1Ja3HJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM18+A2SsNaWtSS8JQlvactaEp605RtJeNKWbyThSVveckiaOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr5oF+mLW9JwpO2rCXhG20RHJJmDkkzh6SZQ9LMIWnmkDRzSJo5JM180C+ThKUkvKUtb0rCUhK+0ZYnSfhGW54ckmYOSTOHpJlD0swhaeaQNHNImjkkzRySZj78Bm35F7TlLUlYSsI32vKNJLylLW9JwpO2vOWQNHNImjkkzRySZg5JM4ekmUPSzCFp5sPLkqCfkvCkLW9pyzeSsNaWJ0n4RhKetOUtSfhGW54ckmYOSTOHpJlD0swhaeaQNHNImjkkzRySZtIfkDRxSJo5JM0ckmYOSTOHpJlD0swhaeaQNPMfi7sGz9/hPVoAAAAASUVORK5CYII=" alt="qr_e4_l2_a" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e4_l2_a</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">ROSETTA-1869</span>
+        </div>
+        <div class="content-preview">رمز المخطوطة السري: ROSETTA-1869 (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131442919.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131442919.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131442919.jpg</code> • الموقع: مبنى الفصول أ - الدور الأول</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#18</span>
+        <span class="era-badge">العصر 4 • مستوى 2 • تفريعة [A]</span>
+        <span class="card-title">ملصق أرشيف المكتبة</span>
+      </div>
+      <div class="location-badge">📍 ممر الأرشيف الخديوي</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAAUpSURBVO3BgW0jSRAEwawG/Xe5/iwYChhtU9JnRPoPklYMktYMktYMktYMktYMktYMktYMktYMkta8+IIk/HVt+cmScKstN5Jw0paTJPx1bTkZJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK158Q3a8tMl4a9ry40knLTlSW356ZJwY5C0ZpC0ZpC0ZpC0ZpC0ZpC0ZpC05sWCJDypLU9LwklbbiThpC23kvDbJeFJbXnSIGnNIGnNIGnNIGnNIGnNIGnNIGnNC32LJHxaEm60Rc8aJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK15oW/RlpMknLTlVltOknAjCSdt0dkgac0gac0gac0gac0gac0gac0gac2LBW3565Jw0paTJJy05Z0k3EjCT9eW32yQtGaQtGaQtGaQtGaQtGaQtGaQtGaQtObFN0jC/11bTpJw0paTJLzTlpMknLTlJAlPSsJfN0haM0haM0haM0haM0haM0haM0ha8+IL2qLPasutttxoy422/N8NktYMktYMktYMktYMktYMktYMkta8+IIknLTlJAk/XVtO2vJJSfi0ttxIwk/XlicNktYMktYMktYMktYMktYMktYMktak//DDJeGkLbeS8KS2nCThpC2floSTttxIwjttuZGEk7Y8aZC0ZpC0ZpC0ZpC0ZpC0ZpC0ZpC05sU3SMJJW06ScCMJt9rySW05ScI7bTlJwo22/N8l4aQtJ4OkNYOkNYOkNYOkNYOkNYOkNYOkNek/6K0knLTlJAknbXlaEk7aciMJN9ryaUm40ZaTQdKaQdKaQdKaQdKaQdKaQdKaQdKaF1+QhJO2PCkJn9aWG205ScJJW2615SQJP10STtpykoSTtpwk4cYgac0gac0gac0gac0gac0gac0gac0gac2LBUl4Uls+LQknbTlpy0kSbrXlpC0nSbjRlpMkvNOWkySctOUkCSdtuTFIWjNIWjNIWjNIWjNIWjNIWjNIWvPiF2jLrSSctOVGW06ScNKWk7a8k4STJDypLSdJOGnLrbY8KQknbTkZJK0ZJK0ZJK0ZJK0ZJK0ZJK0ZJK15saAtJ0m4kYR32nKShCe15UYSbrXlJAknbbnRlpMkvNOWT2rLjUHSmkHSmkHSmkHSmkHSmkHSmkHSmhcLknDSlpMknLTlnSQ8qS0nSThpy622nCThRhI+LQknbTlJwicNktYMktYMktYMktYMktYMktYMktak/6C3knDSlt8uCTfa8rQk3GjLJw2S1gyS1gyS1gyS1gyS1gyS1gyS1rz4giT8dW05actJEk7acpKEW2250ZaTJNxIwklbnpaEk7acJOGkLSeDpDWDpDWDpDWDpDWDpDWDpDWDpDUvvkFbfrok3EjCjSTcaMutJJy05UlteVpbfrJB0ppB0ppB0ppB0ppB0ppB0ppB0ppB0poXC5LwpLZ8WltuJOFpbTlJwo0k/HZJeNIgac0gac0gac0gac0gac0gac0gac0L/QhtOUnC09pykoTfLgmfNEhaM0haM0haM0haM0haM0haM0ha80IrknDSlpO2vJOEn6wtJ0l4py1PastJEm4MktYMktYMktYMktYMktYMktYMkta8WNCW364tN9pyIwm32nKjLTeScCsJJ205acsnDZLWDJLWDJLWDJLWDJLWDJLWDJLWvPgGSfjrknDSlpMknLTlVltOknDSlhtJOGnLpyXhkwZJawZJawZJawZJawZJawZJawZJa9J/kLRikLRmkLRmkLRmkLRmkLRmkLRmkLTmPyXSmLcSSphoAAAAAElFTkSuQmCC" alt="qr_stairs_archive" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_stairs_archive</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">ROSETTA-1869</span>
+        </div>
+        <div class="content-preview">سجل الخديوي: ROSETTA-1869</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131442919.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131442919.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131442919.jpg</code> • الموقع: ممر الأرشيف الخديوي</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#19</span>
+        <span class="era-badge">العصر 4 • مستوى 2 • تفريعة [B]</span>
+        <span class="card-title">كود لغز ملاحظة الأرشيف الخديوي (QR) (تفريعة B)</span>
+      </div>
+      <div class="location-badge">📍 مبنى الفصول ب - الدور الثاني</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAARsSURBVO3BMbLYCJYDwcKLf/8rYxUhZz3SYEOtnspMf0HSxCFp5pA0c0iaOSTNHJJmDkkzh6SZQ9LMIWnmh5eSoN/aspaEJ21ZS4J+a8uTQ9LMIWnmkDRzSJo5JM0ckmYOSTOHpJlD0swPH2vL3yoJX0rCk7a80ZYnSXijLWtt+Vsl4SuHpJlD0swhaeaQNHNImjkkzRySZg5JMz/8AUlYa8taW5ba8jdLwlpblg5JM4ekmUPSzCFp5pA0c0iaOSTNHJJmDkkzP+ivkIQnbXkjCU/aou8dkmYOSTOHpJlD0swhaeaQNHNImjkkzfygf0wSpP/vkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaQNPPDH9CW/wVteZKEN9ryX9eW/7pD0swhaeaQNHNImjkkzRySZg5JM4ekmR8+lgT9loQnbXkjCU/a8m+VBMEhaeaQNHNImjkkzRySZg5JM4ekmUPSzCFpJv0F/Sck4Stt0fcOSTOHpJlD0swhaeaQNHNImjkkzRySZg5JMz+8lIQ32vIkCW+05UkS3mjLkyS80ZavJOGNtnylLf9GSXijLV9JwpO2fOWQNHNImjkkzRySZg5JM4ekmUPSzCFp5oc/oC1vJOFJW95IwpO2vJGEtSTotyQ8acsbbXmShDfa8uSQNHNImjkkzRySZg5JM4ekmUPSzCFp5pA088PHkrCUhK8k4Y22vJGEJ215IwlP2vJGEp605Y0kvNGWpST8Gx2SZg5JM4ekmUPSzCFp5pA0c0iaOSTN/PAHtGUtCU/a8kYSvpKEN9ryJAlrbflKW95IwpO2fCUJXzkkzRySZg5JM4ekmUPSzCFp5pA0c0iaOSTNpL8wloT/BW35ShKetOWNJPzN2vKVJDxpy1cOSTOHpJlD0swhaeaQNHNImjkkzRySZtJf0D8iCU/a8pUkfKUtbyRhrS1PkrDWlieHpJlD0swhaeaQNHNImjkkzRySZg5JM4ekmfQXXkiCfmvLWhL+jdryRhKW2vKVJLzRlieHpJlD0swhaeaQNHNImjkkzRySZg5JM4ekmR8+1pa/VRLWkvBGW76ShCdt+VJbniThjbYsteUrh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTM//AFJWGvLWhKWkvBGW9aS8KQtbyThSVveSMKTtnzlkDRzSJo5JM0ckmYOSTOHpJlD0swhaeaQNPOD/jFteZKEN5LwpC1rSXijLYJD0swhaeaQNHNImjkkzRySZg5JM4ekmR/0j0nCk7a8kYQnSfhKW76UhKUkvNGWJ0l4oy1PDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTM//AFt+V/QlidJ+DdKwhtteSMJX2nLV5LwpC1fOSTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr54WNJ0G9JeNKWN5LwpC1vJGGtLU+S8EYSnrTlK0l4oy1PDkkzh6SZQ9LMIWnmkDRzSJo5JM0ckmYOSTPpL0iaOCTNHJJmDkkzh6SZQ9LMIWnmkDRzSJr5PyTUG8+tsCmwAAAAAElFTkSuQmCC" alt="qr_e4_l2_b" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e4_l2_b</code></div>
+        
+        <div class="code-box">
+          <span class="code-title">🔑 كود الحل الذي يظهر للمتسابق:</span>
+          <span class="code-val">KHEDIVE-ARCHIVE</span>
+        </div>
+        <div class="content-preview">رمز المخطوطة السري: KHEDIVE-ARCHIVE (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131442919.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131442919.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131442919.jpg</code> • الموقع: مبنى الفصول ب - الدور الثاني</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  <div class="guide-card">
+    <div class="card-header">
+      <div class="header-right">
+        <span class="num-badge">#20</span>
+        <span class="era-badge">العصر 4 • مستوى 2 • تفريعة [C]</span>
+        <span class="card-title">كود لغز ملاحظة الأرشيف الخديوي (QR) (تفريعة C)</span>
+      </div>
+      <div class="location-badge">📍 الملاعب والقاعة الكبرى</div>
+    </div>
+    <div class="card-body">
+      <!-- عمود كود الـ QR -->
+      <div class="qr-col">
+        <div class="col-title">ملصق كود الـ QR المطلوب طباعته ولصقه</div>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAANwAAADcCAYAAAAbWs+BAAAAAklEQVR4AewaftIAAARQSURBVO3BwW0dOABDQZL4/bfMDeACpINC29k34/4hABMRgJkIwEwEYCYCMBMBmIkAzEQAZiIAMxGAmY8u2Ra+tNUN2zppq1ds60ZbvWJb+NJWJxGAmQjATARgJgIwEwGYiQDMRABmIgAzEYCZjx5rq9/KttZs60ZbvWJbJ231Ulv9Vrb1SgRgJgIwEwGYiQDMRABmIgAzEYCZCMDMR9/Attba6idqq1fa6oZt/US2tdZWSxGAmQjATARgJgIwEwGYiQDMRABmIgAzEYCZj/DXtNUrtnXSVjfaCt8jAjATAZiJAMxEAGYiADMRgJkIwEwEYOYj/DW2ddJWN9rqxLZeaSu8FwGYiQDMRABmIgAzEYCZCMBMBGAmAjATAZj56Bu01f9BWy211W/WVv+6CMBMBGAmAjATAZiJAMxEAGYiADMRgJmPHrMtfLGtk7a6YVsnbXXDtk7a6iXbghQBmIkAzEQAZiIAMxGAmQjATARgJgIwEwGYcf8Qvo1t3Wgr/H4RgJkIwEwEYCYCMBMBmIkAzEQAZiIAMxGAmY8u2daNtnrFtnDPtm601Ylt3WirV2zrRlud2NZaW51EAGYiADMRgJkIwEwEYCYCMBMBmIkAzHz0g7UVvtjWSVvdsK1XbOuVtvqJ2uqVCMBMBGAmAjATAZiJAMxEAGYiADMRgJkIwMxHj9nWK211Yls32urEtl5qqxPbutFWJ7b1SlvdsK1/nW3daKuTCMBMBGAmAjATAZiJAMxEAGYiADMRgBn3D43Z1ittdcO2Ttrqhm290lY3bOukrV6xrRttdcO2/nVtdRIBmIkAzEQAZiIAMxGAmQjATARgJgIwEwGY+eiSba211Ylt3WirE9u60VZrbXViW6+01Q3butFWJ7b1Slv9RBGAmQjATARgJgIwEwGYiQDMRABmIgAz7h/CX2FbJ22FL7b1SlvdsK2TtnolAjATAZiJAMxEAGYiADMRgJkIwEwEYCYCMPPRJdvCl7Z6xbZ+ora6YVs32gpSBGAmAjATAZiJAMxEAGYiADMRgJkIwEwEYOajx9rqt7Ktn6qtTmzrRlud2NZLtnXSVjds68S2XrGtG211EgGYiQDMRABmIgAzEYCZCMBMBGAmAjDz0TewrbW2+ona6pW2eqWt1mzrRlu9YlsnbfVKBGAmAjATAZiJAMxEAGYiADMRgJkIwEwEYOYjfCvbeqWtbtjWb2Zbr7TVUgRgJgIwEwGYiQDMRABmIgAzEYCZCMDMR/hr2urEtv4P2urEtm601Ylt3bCtV9rqJAIwEwGYiQDMRABmIgAzEYCZCMBMBGAmAjDz0TdoK3yftjqxrZ/Ktn6rCMBMBGAmAjATAZiJAMxEAGYiADMRgJmPHrMtfLGtk7Zas62TtrphWzdsa6mtfqIIwEwEYCYCMBMBmIkAzEQAZiIAMxGAmQjAjPuHAExEAGYiADMRgJkIwEwEYCYCMBMBmIkAzPwHfgALxxuEqtEAAAAASUVORK5CYII=" alt="qr_e4_l2_c" class="qr-img" />
+        <div class="token-tag">رمز الكود: <code>qr_e4_l2_c</code></div>
+        
+        <div class="content-preview">رمز المخطوطة السري: الأرشيف (أدخل هذا الرمز في خانة الحل على هاتفك)</div>
+      </div>
+
+      <!-- مؤشر سهم الربط -->
+      <div class="arrow-col">
+        <div class="arrow-text">يُلصق هنا</div>
+        <div class="arrow-icon">👈</div>
+      </div>
+
+      <!-- عمود صورة الموقع الحقيقي بالمدرسة -->
+      <div class="photo-col">
+        <div class="col-title">📸 موقع اللصق في المدرسة (ألصق الـ QR بجوار هذا المكان)</div>
+        
+          <div class="photo-wrapper">
+            <img src="/media/catalog/PXL_20261118_131442919.jpg" onerror="this.onerror=null; this.src='media/catalog/PXL_20261118_131442919.jpg';" alt="موقع الملصق الميداني" class="photo-img" />
+            <div class="photo-meta">اسم ملف الصورة: <code>PXL_20261118_131442919.jpg</code> • الموقع: الملاعب والقاعة الكبرى</div>
+          </div>
+      </div>
+    </div>
+  </div>
+  </div>
+</body>
+</html>
