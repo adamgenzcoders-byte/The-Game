@@ -73,8 +73,15 @@ export async function POST(request) {
     if (hintNumber === 2) hintText = level.hint2_text;
     if (hintNumber === 3) hintText = level.hint3_text;
 
+    let updatedPoints = team.points !== undefined ? team.points : 100;
+
     if (!hintsUsed.includes(hintNumber)) {
       hintsUsed.push(hintNumber);
+
+      // Deduct Points (Hint 1: -10, Hint 2: -20, Hint 3: -30)
+      const cost = hintNumber === 1 ? 10 : hintNumber === 2 ? 20 : 30;
+      updatedPoints = Math.max(0, updatedPoints - cost);
+      await execute(`UPDATE teams SET points = ? WHERE id = ?`, [updatedPoints, team.id]);
 
       // Upsert team_level_progress
       if (prog) {
@@ -90,13 +97,14 @@ export async function POST(request) {
         );
       }
 
-      await logEvent(team.id, member.id, 'HINT_UNLOCKED', { hintNumber });
+      await logEvent(team.id, member.id, 'HINT_UNLOCKED', { hintNumber, cost, remainingPoints: updatedPoints });
     }
 
     return NextResponse.json({
       success: true,
       hintNumber,
       text: hintText,
+      points: updatedPoints,
     });
   } catch (err) {
     console.error('Game hint POST error:', err);

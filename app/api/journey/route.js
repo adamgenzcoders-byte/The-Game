@@ -13,6 +13,15 @@ export async function GET() {
     await initSchema();
     const gameState = await queryOne(`SELECT * FROM game_state WHERE id = 1`);
 
+    // Auto-check if COUNTDOWN expired -> transition to RUNNING
+    if (gameState && gameState.state === 'COUNTDOWN' && gameState.start_at_epoch) {
+      if (Date.now() >= gameState.start_at_epoch) {
+        await execute(`UPDATE game_state SET state = 'RUNNING', updated_at = datetime('now') WHERE id = 1`);
+        await execute(`UPDATE teams SET started_at = datetime('now') WHERE started_at IS NULL`);
+        gameState.state = 'RUNNING';
+      }
+    }
+
     // Auto-check if game time expired
     if (gameState && gameState.state === 'RUNNING' && gameState.end_at_epoch) {
       if (Date.now() >= gameState.end_at_epoch) {
@@ -84,7 +93,7 @@ export async function POST(request) {
     }
 
     if (action === 'START_COUNTDOWN') {
-      const countdownMs = (body.seconds || 10) * 1000;
+      const countdownMs = (body.seconds || 34) * 1000;
       const startAtEpoch = Date.now() + countdownMs;
       const durationMinutes = Number(body.durationMinutes || 180);
       const endAtEpoch = startAtEpoch + (durationMinutes * 60 * 1000);

@@ -1,4 +1,3 @@
-'use strict';
 'use client';
 
 // ========================================================
@@ -463,10 +462,10 @@ export default function AdminPage() {
                   <>
                     <button
                       type="button"
-                      onClick={() => triggerJourneyAction('START_COUNTDOWN', { seconds: 10, durationMinutes })}
+                      onClick={() => triggerJourneyAction('START_COUNTDOWN', { seconds: 34, durationMinutes })}
                       className="px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-xs shadow animate-pulse flex items-center gap-2"
                     >
-                      <span>🚀 بدء الرحلة والعد التنازلي الموحد (10..0 مع الصوت)</span>
+                      <span>🚀 بدء الرحلة والعد التنازلي التزامني (30 ثانية مع وقفة الحماس 12..0)</span>
                     </button>
                     <button
                       type="button"
@@ -565,7 +564,9 @@ export default function AdminPage() {
               <table className="w-full text-right text-xs">
                 <thead>
                   <tr className="border-b border-slate-800 text-slate-400">
+                    <th className="py-2.5 px-3">رقم الفريق</th>
                     <th className="py-2.5 px-3">الفريق</th>
+                    <th className="py-2.5 px-3">النقاط</th>
                     <th className="py-2.5 px-3">عدد الأعضاء</th>
                     <th className="py-2.5 px-3">الأعضاء</th>
                     <th className="py-2.5 px-3">العصر المخصص</th>
@@ -576,9 +577,15 @@ export default function AdminPage() {
                 <tbody className="divide-y divide-slate-800/60">
                   {teams.map((t) => (
                     <tr key={t.id} className="hover:bg-slate-900/40">
+                      <td className="py-3 px-3 font-mono font-bold text-amber-400">
+                        #{t.team_number || 1}
+                      </td>
                       <td className="py-3 px-3 font-bold text-slate-200 flex items-center gap-2">
                         <span>{t.icon}</span>
                         <span>{t.name}</span>
+                      </td>
+                      <td className="py-3 px-3 font-mono font-bold text-emerald-400">
+                        💎 {t.points ?? 100}
                       </td>
                       <td className="py-3 px-3 text-slate-300">
                         {t.member_count || t.members?.length || 0} طلاب

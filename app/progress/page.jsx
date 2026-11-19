@@ -1,4 +1,3 @@
-'use strict';
 'use client';
 
 // ========================================================
@@ -96,9 +95,14 @@ export default function ProgressPage() {
             <div className="flex items-center gap-3">
               <span className="text-3xl">{team?.icon}</span>
               <div>
-                <h1 className="text-base font-bold text-slate-100">{team?.name}</h1>
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-800 text-[10px] font-mono font-bold text-amber-400">
+                    فريق #{team?.teamNumber || 1}
+                  </span>
+                  <h1 className="text-base font-bold text-slate-100">{team?.name}</h1>
+                </div>
                 <p className="text-[11px] text-slate-400">
-                  التفريعة: {team?.variant} • المستوى الحالي: {team?.currentLevel} من 10
+                  المستوى الحالي: {team?.currentLevel} من 10 • الرصيد: {team?.points ?? 100} نقطة
                 </p>
               </div>
             </div>
@@ -166,6 +170,7 @@ export default function ProgressPage() {
                 <div className="flex items-center gap-2">
                   <span className="font-bold text-slate-400 w-4">#{idx + 1}</span>
                   <span>{t.icon}</span>
+                  <span className="text-[10px] text-amber-400/80 font-mono">#{t.teamNumber || 1}</span>
                   <span
                     className={`font-semibold ${
                       t.isMyTeam ? 'text-amber-300 font-bold' : 'text-slate-300'

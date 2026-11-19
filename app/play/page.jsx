@@ -1,11 +1,10 @@
-'use strict';
 'use client';
 
 // ========================================================
 // app/play/page.jsx - Player Home (Active Competition)
 // ========================================================
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
@@ -29,6 +28,45 @@ export default function PlayPage() {
   const [qrResult, setQrResult] = useState(null);
 
   const [hintLoading, setHintLoading] = useState(false);
+  const audioCtxRef = useRef(null);
+
+  const playFeedbackSound = (isCorrect) => {
+    try {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === 'suspended') ctx.resume();
+
+      if (isCorrect) {
+        // Success Chime: C5 -> E5 -> G5 -> C6
+        [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + i * 0.1);
+          gain.gain.setValueAtTime(0.25, ctx.currentTime + i * 0.1);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.1 + 0.4);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + i * 0.1);
+          osc.stop(ctx.currentTime + i * 0.1 + 0.4);
+        });
+      } else {
+        // Low Tension Buzz
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = 'sawtooth';
+        osc.frequency.setValueAtTime(160, ctx.currentTime);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.3);
+      }
+    } catch (e) {}
+  };
 
   // Polling active level
   useEffect(() => {
@@ -137,7 +175,8 @@ export default function PlayPage() {
       const data = await res.json();
 
       if (data.correct) {
-        setFeedback({ type: 'success', message: data.message || 'إجابة صحيحة!' });
+        playFeedbackSound(true);
+        setFeedback({ type: 'success', message: data.message || 'إجابة صحيحة! أحسنتم يا أبطال 🚀' });
         setAnswer('');
         setMultiAnswer({ ans1: '', ans2: '' });
 
@@ -151,6 +190,7 @@ export default function PlayPage() {
           setFeedback(null);
         }, 1000);
       } else {
+        playFeedbackSound(false);
         setFeedback({ type: 'error', message: data.message || 'إجابة غير صحيحة، حاول مجدداً مع فريقك' });
       }
     } catch (err) {
@@ -178,6 +218,10 @@ export default function PlayPage() {
       if (data.success) {
         setLevelData((prev) => ({
           ...prev,
+          team: {
+            ...prev.team,
+            points: data.points !== undefined ? data.points : prev.team.points,
+          },
           hints: {
             ...prev.hints,
             [hintNumber]: {
@@ -294,119 +338,125 @@ export default function PlayPage() {
   const level = levelData?.level;
   const hints = levelData?.hints || {};
   const isMulti = level?.questions && Array.isArray(level.questions);
+  const currentLvl = level?.levelNumber || 1;
+  const points = levelData?.team?.points !== undefined ? levelData.team.points : 100;
+  const teamNumber = levelData?.team?.teamNumber || 1;
 
   return (
     <main className="min-h-screen max-w-lg mx-auto p-4 flex flex-col justify-between bg-[#0a0c10] text-slate-200">
-      {/* 1. TOP NAVIGATION: ONLY TWO MAIN BUTTONS + ERA PILL */}
-      <header className="flex items-center justify-between py-2 border-b border-slate-900">
-        <div className="flex gap-2">
+      {/* 1. TOP RACING HEADER */}
+      <header className="flex items-center justify-between py-2 border-b border-slate-900 gap-2">
+        <div className="flex gap-1.5">
           <Link
             href="/progress"
-            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#121620] border border-slate-800 text-slate-300 hover:border-slate-700 active:scale-95 transition"
+            className="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-[#121620] border border-slate-800 text-slate-300 hover:border-amber-600 active:scale-95 transition"
           >
-            تقدم الفريق
+            📊 الترتيب
           </Link>
           <Link
             href="/levels"
-            className="text-xs font-bold px-3 py-1.5 rounded-lg bg-[#121620] border border-slate-800 text-slate-300 hover:border-slate-700 active:scale-95 transition"
+            className="text-xs font-bold px-2.5 py-1.5 rounded-lg bg-[#121620] border border-slate-800 text-slate-300 hover:border-amber-600 active:scale-95 transition"
           >
-            المستويات
+            🗺️ الخريطة
           </Link>
         </div>
 
-        <div
-          className="text-xs font-bold px-3 py-1 rounded-full border flex items-center gap-1.5"
-          style={{
-            borderColor: eraColor,
-            backgroundColor: `${eraColor}15`,
-            color: eraColor,
-          }}
-        >
-          <span>{levelData?.team?.icon}</span>
-          <span>المستوى {level?.levelNumber || 1}/10</span>
+        {/* Team Number & Points Badge */}
+        <div className="flex items-center gap-1.5">
+          <div className="px-2.5 py-1 rounded-lg bg-[#121620] border border-slate-800 text-xs font-bold text-slate-200 flex items-center gap-1">
+            <span>{levelData?.team?.icon}</span>
+            <span className="text-amber-400 font-mono">#{teamNumber}</span>
+          </div>
+
+          <div className="px-2.5 py-1 rounded-lg bg-amber-950/40 border border-amber-600/60 text-xs font-black text-amber-300 flex items-center gap-1 shadow-sm">
+            <span>💎</span>
+            <span>{points}</span>
+            <span className="text-[10px] font-normal text-amber-400/80">نقطة</span>
+          </div>
         </div>
       </header>
 
-      {/* GAME COUNTDOWN CLOCK BANNER */}
-      {remainingTimeSeconds !== null && (
-        <div className="my-2 py-2 px-3 rounded-xl bg-[#121620] border border-amber-900/40 flex items-center justify-between text-xs">
-          <span className="text-slate-400 font-semibold flex items-center gap-1.5">
-            <span>⏱️</span>
-            <span>الوقت المتبقي في السباق:</span>
+      {/* 2. LIVE RACING TRACK STRIP (حلبة السباق الميداني) */}
+      <div className="my-2.5 p-3 rounded-xl bg-[#121620] border border-slate-800/80 space-y-2">
+        <div className="flex items-center justify-between text-[11px] font-bold">
+          <span className="text-amber-400 flex items-center gap-1">
+            <span>🏎️</span>
+            <span>المرحلة {currentLvl} من 10</span>
           </span>
-          <span className="font-mono font-bold text-amber-400 text-sm">
-            {formatDuration(remainingTimeSeconds)}
-          </span>
-        </div>
-      )}
-
-      {/* 2. CALM SAFETY BANNER */}
-      {levelData?.safetyBanner && (
-        <aside className="my-1 py-1.5 px-3 rounded-lg bg-slate-900/50 border border-slate-800/80 text-[11px] text-slate-400 text-center">
-          {levelData.safetyBanner}
-        </aside>
-      )}
-
-      {/* 3. MAIN GAME CONTENT */}
-      <section className="flex-1 my-2 space-y-3">
-        {/* Story Card */}
-        <div className="p-4 rounded-xl bg-[#121620] border border-slate-800/80">
-          <div className="flex items-center justify-between mb-2">
-            <span
-              className="text-[11px] font-bold uppercase tracking-wider"
-              style={{ color: eraColor }}
-            >
-              {levelData?.team?.eraName} • {level?.title}
+          {remainingTimeSeconds !== null && (
+            <span className="font-mono text-slate-300 flex items-center gap-1">
+              <span>⏱️</span>
+              <span>{formatDuration(remainingTimeSeconds)}</span>
             </span>
-            <span className="text-[11px] text-slate-500">
-              التفريعة {levelData?.team?.variant}
-            </span>
-          </div>
-          <p className="text-xs text-slate-300 leading-relaxed font-sans">
-            {level?.storyText}
-          </p>
+          )}
         </div>
 
-        {/* Clue Card */}
-        <div className="p-4 rounded-xl bg-[#121620] border border-slate-800 space-y-3">
+        {/* 10 Checkpoints Track */}
+        <div className="flex items-center justify-between gap-1 pt-1">
+          {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((step) => {
+            const isCompleted = step < currentLvl;
+            const isCurrent = step === currentLvl;
+
+            return (
+              <div key={step} className="flex-1 flex flex-col items-center">
+                <div
+                  className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold transition-all ${
+                    isCompleted
+                      ? 'bg-emerald-600 text-slate-950 shadow-sm shadow-emerald-500/40'
+                      : isCurrent
+                      ? 'bg-amber-500 text-slate-950 ring-2 ring-amber-400 ring-offset-2 ring-offset-[#121620] scale-110 animate-pulse font-black'
+                      : 'bg-slate-900 border border-slate-800 text-slate-600'
+                  }`}
+                >
+                  {isCompleted ? '✓' : step}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* 3. MAIN CLUE & CHALLENGE CARD (Clean, Reduced Text) */}
+      <section className="flex-1 my-1 space-y-3">
+        <div className="p-4 rounded-xl bg-[#121620] border border-slate-800 space-y-2.5">
           <div className="flex items-center justify-between">
-            <h2 className="text-xs font-bold text-slate-200">الدليل واللغز الميداني</h2>
-            {level?.safetyWarning && (
-              <span className="text-[10px] px-2 py-0.5 rounded bg-rose-950/60 text-rose-400 border border-rose-900/60">
-                امشِ بهدوء ولا تركض
-              </span>
-            )}
+            <span className="text-xs font-black text-amber-400 flex items-center gap-1.5">
+              <span>🎯</span>
+              <span>{level?.title}</span>
+            </span>
+            <span className="text-[10px] px-2 py-0.5 rounded bg-slate-900 border border-slate-800 text-slate-400 font-mono">
+              مسار {levelData?.team?.variant}
+            </span>
           </div>
 
-          <p className="text-sm text-slate-100 font-medium leading-relaxed">
+          <p className="text-sm font-semibold text-slate-100 leading-relaxed">
             {level?.clueText}
           </p>
 
           {/* Photo if attached */}
           {level?.photoUrl && (
-            <div className="mt-2">
-              <button
-                type="button"
-                onClick={() => setShowPhotoModal(true)}
-                className="w-full text-right group relative overflow-hidden rounded-lg border border-slate-800 hover:border-amber-600 transition"
-              >
-                <img
-                  src={level.photoUrl}
-                  alt="دليل مصور"
-                  className="w-full h-36 object-cover object-center group-hover:scale-102 transition duration-300"
-                />
-                <div className="absolute inset-0 bg-slate-950/40 flex items-center justify-center text-xs text-white font-semibold">
-                  🔍 اضغط لتكبير صورة الدليل بالمدرسة
-                </div>
-              </button>
-            </div>
+            <button
+              type="button"
+              onClick={() => setShowPhotoModal(true)}
+              className="w-full mt-2 text-right group relative overflow-hidden rounded-xl border border-slate-800 hover:border-amber-500 transition"
+            >
+              <img
+                src={level.photoUrl}
+                alt="دليل مصور بالمدرسة"
+                className="w-full h-36 object-cover object-center group-hover:scale-102 transition duration-300"
+              />
+              <div className="absolute inset-0 bg-slate-950/50 flex items-center justify-center text-xs text-white font-bold backdrop-blur-[1px]">
+                🔍 اضغط لتكبير صورة الدليل بالمدرسة
+              </div>
+            </button>
           )}
 
-          {/* Booth Game info if Beat 4 */}
+          {/* Booth Game info if Booth Challenge */}
           {level?.booth && (
-            <div className="p-3 rounded-lg bg-slate-900 border border-slate-800 space-y-1.5 text-xs">
-              <div className="font-bold text-amber-400">
-                محطة التحدي: {level.booth.game_name}
+            <div className="p-3 rounded-lg bg-amber-950/20 border border-amber-900/40 space-y-1.5 text-xs">
+              <div className="font-bold text-amber-400 flex items-center gap-1">
+                <span>🎪</span>
+                <span>تحدي البوث الميداني: {level.booth.game_name}</span>
               </div>
               <div className="text-slate-300">
                 <span className="font-semibold text-slate-400">القواعد: </span>
@@ -420,26 +470,38 @@ export default function PlayPage() {
           )}
         </div>
 
-        {/* 4. HELPFUL HINT LADDER (NO PENALTIES) */}
+        {/* 4. POINT-BASED HINT LADDER */}
         <div className="p-3 rounded-xl bg-[#121620] border border-slate-800 space-y-2">
-          <div className="text-[11px] font-bold text-slate-400">
-            سلم التلميحات المساعدة (بدون أي خصم وقت)
+          <div className="flex items-center justify-between text-[11px] font-bold">
+            <span className="text-slate-300 flex items-center gap-1">
+              <span>💡</span>
+              <span>وسائل المساعدة (تخصم من النقاط)</span>
+            </span>
+            <span className="text-amber-400 font-mono text-[10px]">
+              رصيدك: {points} نقطة
+            </span>
           </div>
 
           <div className="space-y-1.5">
             {[1, 2, 3].map((num) => {
               const h = hints[num] || { unlocked: false, text: null };
               const isLockedByPrior = (num === 2 && !hints[1]?.unlocked) || (num === 3 && !hints[2]?.unlocked);
+              const cost = num === 1 ? 10 : num === 2 ? 20 : 30;
 
               return (
                 <div key={num} className="rounded-lg bg-slate-900/60 border border-slate-800/60 p-2.5 text-xs">
                   <div className="flex items-center justify-between">
-                    <span className="font-medium text-slate-300">
-                      التلميح {num}
+                    <span className="font-medium text-slate-300 flex items-center gap-1.5">
+                      <span>تلميح {num}</span>
+                      <span className="text-[10px] text-amber-400/80 font-mono">
+                        (-{cost} نقاط)
+                      </span>
                     </span>
 
                     {h.unlocked ? (
-                      <span className="text-[10px] text-emerald-400 font-semibold">مكشوف</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded bg-emerald-950/60 text-emerald-400 border border-emerald-900/60 font-semibold">
+                        مكشوف
+                      </span>
                     ) : (
                       <button
                         type="button"
@@ -447,13 +509,13 @@ export default function PlayPage() {
                         onClick={() => handleUnlockHint(num)}
                         className="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-200 disabled:opacity-30 transition font-semibold"
                       >
-                        كشف التلميح
+                        كشف (-{cost} نقاط)
                       </button>
                     )}
                   </div>
 
                   {h.unlocked && h.text && (
-                    <p className="mt-2 text-slate-200 text-xs bg-slate-950/60 p-2 rounded border border-slate-800/60">
+                    <p className="mt-2 text-slate-200 text-xs bg-slate-950/70 p-2.5 rounded-lg border border-slate-800/80 leading-relaxed">
                       💡 {h.text}
                     </p>
                   )}
@@ -468,10 +530,10 @@ export default function PlayPage() {
           {/* Feedback banner */}
           {feedback && (
             <div
-              className={`p-2.5 rounded-lg text-xs font-semibold text-center ${
+              className={`p-2.5 rounded-lg text-xs font-bold text-center animate-fade-in ${
                 feedback.type === 'success'
-                  ? 'bg-emerald-950/60 text-emerald-300 border border-emerald-900'
-                  : 'bg-rose-950/60 text-rose-300 border border-rose-900'
+                  ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-700 shadow-md shadow-emerald-900/30'
+                  : 'bg-rose-950/80 text-rose-300 border border-rose-800 shadow-md shadow-rose-900/30'
               }`}
             >
               {feedback.message}
@@ -508,15 +570,12 @@ export default function PlayPage() {
               </div>
             ) : (
               <div>
-                <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                  إجابة المستوى أو الكود الميداني
-                </label>
                 <input
                   type="text"
                   value={answer}
                   onChange={(e) => setAnswer(e.target.value)}
-                  placeholder="اكتب الحل أو الكلمة أو الرقم هنا..."
-                  className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-amber-600"
+                  placeholder="اكتب الحل الميداني أو الكود هنا..."
+                  className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-amber-600 font-medium placeholder:text-slate-500"
                 />
               </div>
             )}
@@ -525,15 +584,15 @@ export default function PlayPage() {
               <button
                 type="submit"
                 disabled={submitting}
-                className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs transition disabled:opacity-50"
+                className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 active:bg-amber-700 text-slate-950 font-black text-xs transition disabled:opacity-50 shadow-md shadow-amber-600/20"
               >
-                {submitting ? 'جاري التحقق...' : 'تأكيد الحل'}
+                {submitting ? 'جاري التحقق...' : 'تأكيد الحل 🚀'}
               </button>
 
               <button
                 type="button"
                 onClick={() => setShowQrModal(true)}
-                className="px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition"
+                className="px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 active:bg-slate-900 text-slate-200 text-xs font-bold flex items-center gap-1.5 transition border border-slate-700/60"
               >
                 <span>📷</span>
                 <span>مسح QR</span>

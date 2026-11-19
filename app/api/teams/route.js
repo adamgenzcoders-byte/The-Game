@@ -17,14 +17,14 @@ export async function GET(request) {
   try {
     await initSchema();
     const teams = await query(`
-      SELECT t.id, t.name, t.icon, t.era_id, t.variant, t.current_level,
+      SELECT t.id, t.team_number, t.points, t.name, t.icon, t.era_id, t.variant, t.current_level,
              e.name as era_name, e.color as era_color, e.icon as era_icon,
              COUNT(m.id) as member_count
       FROM teams t
       LEFT JOIN eras e ON t.era_id = e.id
       LEFT JOIN members m ON m.team_id = t.id
       GROUP BY t.id
-      ORDER BY t.name ASC
+      ORDER BY t.team_number ASC, t.created_at ASC
     `);
 
     // Fetch members for each team
@@ -39,14 +39,12 @@ export async function GET(request) {
       });
     }
 
-    const takenIcons = teams.map(t => t.icon).filter(Boolean);
-
     return NextResponse.json({
       teams: teams.map(t => ({
         ...t,
         members: membersByTeam[t.id] || [],
       })),
-      takenIcons,
+      takenIcons: [], // Icons can now be shared by multiple teams
       allIcons: ICONS_LIST,
     });
   } catch (err) {
@@ -92,18 +90,16 @@ export async function POST(request) {
       return NextResponse.json({ error: 'اسم الفريق مستخدم بالفعل. اختر اسماً آخر' }, { status: 400 });
     }
 
-    // Check icon not taken
-    const existingIcon = await queryOne(`SELECT id FROM teams WHERE icon = ?`, [icon]);
-    if (existingIcon) {
-      return NextResponse.json({ error: 'هذه الأيقونة محجوزة لفريق آخر. اختر أيقونة أخرى' }, { status: 400 });
-    }
+    // Auto-assign sequential Team Number (#1, #2, #3, ...)
+    const lastTeam = await queryOne(`SELECT MAX(team_number) as max_num FROM teams`);
+    const teamNumber = (lastTeam?.max_num || 0) + 1;
 
     const teamId = generateTeamId();
     const now = new Date().toISOString();
 
     await execute(
-      `INSERT INTO teams (id, name, icon, current_level, created_at) VALUES (?, ?, ?, 1, ?)`,
-      [teamId, name, icon, now]
+      `INSERT INTO teams (id, team_number, name, icon, current_level, points, created_at) VALUES (?, ?, ?, ?, 1, 100, ?)`,
+      [teamId, teamNumber, name, icon, now]
     );
 
     // Make current member the leader
@@ -112,14 +108,16 @@ export async function POST(request) {
       [teamId, member.id]
     );
 
-    await logEvent(teamId, member.id, 'TEAM_CREATED', { teamName: name, icon });
+    await logEvent(teamId, member.id, 'TEAM_CREATED', { teamNumber, teamName: name, icon });
 
     return NextResponse.json({
       success: true,
       team: {
         id: teamId,
+        team_number: teamNumber,
         name,
         icon,
+        points: 100,
       }
     });
   } catch (err) {

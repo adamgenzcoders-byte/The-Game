@@ -38,7 +38,7 @@ export async function GET(request) {
 
     // All teams in this era to compute ranking and race strip
     const eraTeams = await query(
-      `SELECT id, name, icon, current_level, started_at, finished_at
+      `SELECT id, team_number, points, name, icon, current_level, started_at, finished_at
        FROM teams
        WHERE era_id = ?
        ORDER BY current_level DESC, started_at ASC`,
@@ -57,6 +57,8 @@ export async function GET(request) {
 
       return {
         id: t.id,
+        teamNumber: t.team_number || 1,
+        points: t.points !== undefined ? t.points : 100,
         name: t.name,
         icon: t.icon,
         currentLevel: Math.min(10, t.current_level),
@@ -86,6 +88,8 @@ export async function GET(request) {
     return NextResponse.json({
       team: {
         id: team.id,
+        teamNumber: team.team_number || 1,
+        points: team.points !== undefined ? team.points : 100,
         name: team.name,
         icon: team.icon,
         eraId: team.era_id,

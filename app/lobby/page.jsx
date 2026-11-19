@@ -1,4 +1,3 @@
-'use strict';
 'use client';
 
 // ========================================================
@@ -14,17 +13,21 @@ export default function LobbyPage() {
   const [teamMembers, setTeamMembers] = useState([]);
   const [pendingRequests, setPendingRequests] = useState([]);
   const [gameState, setGameState] = useState('LOBBY');
-  const [countdownSeconds, setCountdownSeconds] = useState(null);
+  const [startAtEpoch, setStartAtEpoch] = useState(null);
+  const [countdownPhase, setCountdownPhase] = useState(null); // 'NORMAL' | 'PAUSE_MESSAGE' | 'LOUD' | 'LAUNCH'
+  const [countdownValue, setCountdownValue] = useState(null);
   const [serverClockOffset, setServerClockOffset] = useState(0);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
   const [error, setError] = useState('');
+  const lastPlayedRef = useRef(null);
+  const redirectingRef = useRef(false);
 
   // Audio Context Ref for Synthesizer Beeps
   const audioCtxRef = useRef(null);
 
   // Play Kahoot-style Tick Beep (Web Audio API)
-  const playTickSound = (sec) => {
+  const playTickSound = (sec, isLoud = false) => {
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
@@ -32,19 +35,57 @@ export default function LobbyPage() {
       const ctx = audioCtxRef.current;
       if (ctx.state === 'suspended') ctx.resume();
 
-      if (sec > 0) {
-        // High-pitch tension tick
+      if (sec === 'PAUSE_MESSAGE') {
+        // Dramatic low suspense pulse when the crowd message appears
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.type = 'sine';
-        // Pitch rises as time gets closer: 10 -> 440Hz, 3 -> 660Hz, 1 -> 880Hz
-        osc.frequency.setValueAtTime(440 + (10 - sec) * 44, ctx.currentTime);
-        gain.gain.setValueAtTime(0.3, ctx.currentTime);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.15);
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(220, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(360, ctx.currentTime + 0.5);
+        gain.gain.setValueAtTime(0.4, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.5);
         osc.connect(gain);
         gain.connect(ctx.destination);
         osc.start();
-        osc.stop(ctx.currentTime + 0.15);
+        osc.stop(ctx.currentTime + 0.5);
+      } else if (sec > 0) {
+        if (isLoud) {
+          // Dramatic louder game-show countdown sound (11 down to 1)
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const gain = ctx.createGain();
+          
+          osc1.type = 'sawtooth';
+          osc2.type = 'sine';
+          
+          const pitch = 520 + (11 - sec) * 55; // 520Hz -> 1070Hz
+          osc1.frequency.setValueAtTime(pitch, ctx.currentTime);
+          osc2.frequency.setValueAtTime(pitch / 2, ctx.currentTime);
+          
+          gain.gain.setValueAtTime(0.5, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.22);
+          
+          osc1.connect(gain);
+          osc2.connect(gain);
+          gain.connect(ctx.destination);
+          
+          osc1.start();
+          osc2.start();
+          osc1.stop(ctx.currentTime + 0.22);
+          osc2.stop(ctx.currentTime + 0.22);
+        } else {
+          // Standard tension tick for 30..12
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(440 + (30 - sec) * 10, ctx.currentTime);
+          gain.gain.setValueAtTime(0.25, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.12);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start();
+          osc.stop(ctx.currentTime + 0.12);
+        }
       } else {
         // Grand Start Fanfare Chord on 0!
         [523.25, 659.25, 783.99, 1046.5].forEach((freq) => {
@@ -52,17 +93,15 @@ export default function LobbyPage() {
           const gain = ctx.createGain();
           osc.type = 'triangle';
           osc.frequency.setValueAtTime(freq, ctx.currentTime);
-          gain.gain.setValueAtTime(0.2, ctx.currentTime);
-          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.8);
+          gain.gain.setValueAtTime(0.35, ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 1.0);
           osc.connect(gain);
           gain.connect(ctx.destination);
           osc.start();
-          osc.stop(ctx.currentTime + 0.8);
+          osc.stop(ctx.currentTime + 1.0);
         });
       }
-    } catch (e) {
-      // Audio autoplay policy fallback (silent if blocked)
-    }
+    } catch (e) {}
   };
 
   // Initial load & Polling
@@ -107,22 +146,20 @@ export default function LobbyPage() {
 
         // If game is already running, go straight to play
         if (journeyData.state === 'RUNNING') {
-          router.replace('/play');
+          if (!redirectingRef.current) {
+            redirectingRef.current = true;
+            router.replace('/play');
+          }
           return;
         }
 
         // If Countdown active
         if (journeyData.state === 'COUNTDOWN' && journeyData.startAtEpoch) {
-          const adjustedClientNow = Date.now() + offset;
-          const diff = Math.ceil((journeyData.startAtEpoch - adjustedClientNow) / 1000);
-          if (diff <= 0) {
-            playTickSound(0);
-            router.replace('/play');
-            return;
-          }
-          setCountdownSeconds(diff);
+          setStartAtEpoch(journeyData.startAtEpoch);
         } else {
-          setCountdownSeconds(null);
+          setStartAtEpoch(null);
+          setCountdownPhase(null);
+          setCountdownValue(null);
         }
 
         // If leader, fetch pending requests
@@ -147,30 +184,69 @@ export default function LobbyPage() {
     return () => clearInterval(interval);
   }, [router]);
 
-  // Local tick for smooth 10..0 countdown with sound
+  // High-Precision Synced 30 -> 12 -> 4s Pause Message -> 11 -> 0 Countdown
   useEffect(() => {
-    if (countdownSeconds === null || countdownSeconds <= 0) return;
-
-    // Play tick sound for current second
-    playTickSound(countdownSeconds);
+    if (!startAtEpoch) return;
 
     const timer = setInterval(() => {
-      setCountdownSeconds((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          playTickSound(0); // Launch sound!
-          setTimeout(() => {
-            router.replace('/play');
-          }, 800);
-          return 0;
+      const adjustedNow = Date.now() + serverClockOffset;
+      const remainingTotalMs = startAtEpoch - adjustedNow;
+
+      if (remainingTotalMs <= 0) {
+        setCountdownPhase('LAUNCH');
+        setCountdownValue(0);
+        if (lastPlayedRef.current !== '0') {
+          lastPlayedRef.current = '0';
+          playTickSound(0);
         }
-        playTickSound(prev - 1);
-        return prev - 1;
-      });
-    }, 1000);
+        clearInterval(timer);
+        setTimeout(() => {
+          if (!redirectingRef.current) {
+            redirectingRef.current = true;
+            router.replace('/play');
+          }
+        }, 1200);
+        return;
+      }
+
+      // Phase 1: 30 down to 12 (remainingTotalMs > 16000)
+      if (remainingTotalMs > 16000) {
+        const num = Math.min(30, Math.max(12, Math.ceil((remainingTotalMs - 4000) / 1000)));
+        setCountdownPhase('NORMAL');
+        setCountdownValue(num);
+        if (lastPlayedRef.current !== `NORMAL_${num}`) {
+          lastPlayedRef.current = `NORMAL_${num}`;
+          playTickSound(num, false);
+        }
+        return;
+      }
+
+      // Phase 2: Pause 4 seconds at 12 (16000ms down to 12000ms)
+      if (remainingTotalMs <= 16000 && remainingTotalMs > 12000) {
+        setCountdownPhase('PAUSE_MESSAGE');
+        setCountdownValue(12);
+        if (lastPlayedRef.current !== 'PAUSE_MESSAGE') {
+          lastPlayedRef.current = 'PAUSE_MESSAGE';
+          playTickSound('PAUSE_MESSAGE');
+        }
+        return;
+      }
+
+      // Phase 3: Intense Crowd Countdown from 11 down to 1 (remainingTotalMs <= 12000)
+      if (remainingTotalMs <= 12000) {
+        const num = Math.min(11, Math.max(1, Math.ceil(remainingTotalMs / 1000)));
+        setCountdownPhase('LOUD');
+        setCountdownValue(num);
+        if (lastPlayedRef.current !== `LOUD_${num}`) {
+          lastPlayedRef.current = `LOUD_${num}`;
+          playTickSound(num, true); // Louder distinct tone!
+        }
+        return;
+      }
+    }, 150);
 
     return () => clearInterval(timer);
-  }, [countdownSeconds, router]);
+  }, [startAtEpoch, serverClockOffset, router]);
 
   async function handleRequestAction(requestId, action) {
     setActionLoading(true);
@@ -231,30 +307,50 @@ export default function LobbyPage() {
 
   return (
     <main className="min-h-screen max-w-lg mx-auto p-4 flex flex-col justify-between bg-[#0a0c10] text-slate-200 relative">
-      {/* KAHOOT-STYLE FULL SCREEN SYNCED COUNTDOWN OVERLAY */}
-      {countdownSeconds !== null && (
+      {/* KAHOOT-STYLE 30..12 -> 4s PAUSE MESSAGE -> 11..0 SYNCED COUNTDOWN OVERLAY */}
+      {countdownPhase !== null && (
         <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#0a0c10]/98 backdrop-blur-xl p-6 select-none animate-fade-in">
-          <div className="text-center space-y-4">
-            <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500 text-amber-400 text-xs font-black tracking-widest uppercase">
-              🚀 استعدوا للانطلاق 🚀
-            </span>
-
-            {countdownSeconds > 0 ? (
-              <div className="text-9xl font-black text-amber-400 tracking-tighter scale-110 transition-transform duration-200">
-                {countdownSeconds}
+          {countdownPhase === 'PAUSE_MESSAGE' ? (
+            <div className="text-center space-y-5 max-w-sm px-4 animate-pulse">
+              <div className="text-7xl">🗣️🔥</div>
+              <h2 className="text-2xl sm:text-3xl font-black text-amber-400 leading-snug drop-shadow-[0_0_25px_rgba(245,158,11,0.5)]">
+                ممكن نعد سوا مع بعض كلنا بصوت عالي ؟؟؟
+              </h2>
+              <div className="inline-block px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500 text-amber-300 text-xs font-bold tracking-wider">
+                استعدوا... 11، 10، 9...
               </div>
-            ) : (
-              <div className="text-4xl font-black text-emerald-400 tracking-tight animate-bounce">
+            </div>
+          ) : countdownPhase === 'LOUD' ? (
+            <div className="text-center space-y-4">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-rose-600/30 border border-rose-500 text-rose-300 text-xs font-black tracking-widest animate-pulse">
+                🔥 العد الجماعي بصوت عالي 🔥
+              </span>
+              <div className="text-9xl sm:text-[11rem] font-black text-amber-400 tracking-tighter scale-125 transition-transform duration-150 drop-shadow-[0_0_40px_rgba(245,158,11,0.7)]">
+                {countdownValue}
+              </div>
+              <p className="text-xs font-bold text-amber-300/90">عدوا مع بعض بصوت عالي!</p>
+            </div>
+          ) : countdownPhase === 'LAUNCH' ? (
+            <div className="text-center space-y-4">
+              <div className="text-7xl animate-bounce">🏁</div>
+              <div className="text-4xl sm:text-5xl font-black text-emerald-400 tracking-tight animate-bounce drop-shadow-[0_0_35px_rgba(52,211,153,0.8)]">
                 انطلقت الرحلة!
               </div>
-            )}
-
-            <p className="text-xs text-slate-300">
-              {countdownSeconds > 0
-                ? 'الجيم ماستر أطلق شارة البداية، اللعبة ستفتح فوراً...'
-                : 'جاري فتح المستويات لجميع الفرق الآن...'}
-            </p>
-          </div>
+              <p className="text-xs text-slate-300">جاري فتح الألغاز لجميع الفرق الآن...</p>
+            </div>
+          ) : (
+            <div className="text-center space-y-4">
+              <span className="inline-block px-4 py-1.5 rounded-full bg-amber-500/20 border border-amber-500 text-amber-400 text-xs font-black tracking-widest uppercase">
+                🚀 استعدوا للانطلاق 🚀
+              </span>
+              <div className="text-9xl font-black text-slate-100 tracking-tighter scale-110 transition-transform duration-200">
+                {countdownValue}
+              </div>
+              <p className="text-xs text-slate-400">
+                الجيم ماستر أطلق شارة البداية، استعدوا للمنافسة الميدانية...
+              </p>
+            </div>
+          )}
         </div>
       )}
 
@@ -267,7 +363,12 @@ export default function LobbyPage() {
 
         <div className="flex items-center justify-center gap-3 mt-1">
           <span className="text-3xl">{member?.team_icon}</span>
-          <h1 className="text-2xl font-bold text-slate-100">{member?.team_name}</h1>
+          <div>
+            <div className="inline-block px-2.5 py-0.5 mb-1 rounded bg-amber-950/60 border border-amber-800 text-[11px] font-mono font-bold text-amber-400">
+              فريق رقم #{member?.team_number || 1}
+            </div>
+            <h1 className="text-2xl font-bold text-slate-100">{member?.team_name}</h1>
+          </div>
         </div>
 
         {/* Assigned Era Banner if locked */}

@@ -1,4 +1,3 @@
-'use strict';
 'use client';
 
 // ========================================================
@@ -245,7 +244,7 @@ export default function TeamsPage() {
             <div>
               <div className="flex items-center justify-between mb-1.5">
                 <label className="text-xs font-medium text-slate-300">
-                  شعار الفريق (الأيقونات المحجوزة غير متاحة)
+                  شعار الفريق (اختر الأيقونة المناسبة لفريقك)
                 </label>
                 {selectedIcon && (
                   <span className="text-xs text-amber-500 font-semibold">
@@ -255,21 +254,17 @@ export default function TeamsPage() {
               </div>
               <div className="grid grid-cols-6 gap-2 bg-[#121620] p-3 rounded-xl border border-slate-800">
                 {allIcons.map((ico) => {
-                  const isTaken = takenIcons.includes(ico);
                   const isSelected = selectedIcon === ico;
 
                   return (
                     <button
                       key={ico}
                       type="button"
-                      disabled={isTaken}
                       onClick={() => setSelectedIcon(ico)}
                       className={`h-11 rounded-lg text-lg flex items-center justify-center transition border ${
                         isSelected
-                          ? 'border-amber-500 bg-amber-950/50 scale-105'
-                          : isTaken
-                          ? 'border-transparent bg-slate-900/40 opacity-20 cursor-not-allowed'
-                          : 'border-slate-800 bg-slate-900/80 hover:border-slate-600'
+                          ? 'border-amber-500 bg-amber-950/50 scale-105 shadow-md shadow-amber-500/20'
+                          : 'border-slate-800 bg-slate-900/80 hover:border-slate-600 hover:bg-slate-800'
                       }`}
                     >
                       {ico}
@@ -321,8 +316,13 @@ export default function TeamsPage() {
                     <div className="flex items-center gap-3">
                       <span className="text-2xl">{t.icon}</span>
                       <div>
-                        <h3 className="text-sm font-bold text-slate-200">{t.name}</h3>
-                        <p className="text-[11px] text-slate-400">
+                        <div className="flex items-center gap-2">
+                          <span className="px-1.5 py-0.5 rounded bg-amber-950/60 border border-amber-800/60 text-[10px] font-mono font-bold text-amber-400">
+                            #{t.team_number || 1}
+                          </span>
+                          <h3 className="text-sm font-bold text-slate-200">{t.name}</h3>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-0.5">
                           {count} من 6 أعضاء {isFull && '• مكتمل'}
                         </p>
                       </div>

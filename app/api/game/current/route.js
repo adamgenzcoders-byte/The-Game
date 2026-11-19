@@ -18,8 +18,16 @@ export async function GET(request) {
       return NextResponse.json({ error: 'لست منضماً لأي فريق بعد' }, { status: 403 });
     }
 
-    // Check game state
-    const gameState = await queryOne(`SELECT * FROM game_state WHERE id = 1`);
+    // Check game state & auto-transition if countdown finished
+    let gameState = await queryOne(`SELECT * FROM game_state WHERE id = 1`);
+    if (gameState && gameState.state === 'COUNTDOWN' && gameState.start_at_epoch) {
+      if (Date.now() >= gameState.start_at_epoch) {
+        await execute(`UPDATE game_state SET state = 'RUNNING', updated_at = datetime('now') WHERE id = 1`);
+        await execute(`UPDATE teams SET started_at = datetime('now') WHERE started_at IS NULL`);
+        gameState.state = 'RUNNING';
+      }
+    }
+
     if (!gameState || gameState.state !== 'RUNNING') {
       return NextResponse.json({
         gameState: gameState ? gameState.state : 'LOBBY',
@@ -139,6 +147,8 @@ export async function GET(request) {
       endAtEpoch: gameState.end_at_epoch,
       team: {
         id: team.id,
+        teamNumber: team.team_number || 1,
+        points: team.points !== undefined ? team.points : 100,
         name: team.name,
         icon: team.icon,
         variant: team.variant,
