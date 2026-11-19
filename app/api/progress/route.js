@@ -38,23 +38,22 @@ export async function GET(request) {
 
     // All teams in this era to compute ranking and race strip
     const eraTeams = await query(
-      `SELECT id, name, icon, current_level, total_penalty_seconds, started_at, finished_at
+      `SELECT id, name, icon, current_level, started_at, finished_at
        FROM teams
        WHERE era_id = ?
-       ORDER BY current_level DESC, total_penalty_seconds ASC`,
+       ORDER BY current_level DESC, started_at ASC`,
       [team.era_id]
     );
 
     // Calculate score / rank:
-    // Ranked primarily by current_level (higher is better), then time (lower is better)
-    const rankedEraTeams = eraTeams.map((t, idx) => {
+    // Ranked primarily by current_level (higher is better), then actual time
+    const rankedEraTeams = eraTeams.map((t) => {
       let elapsedSeconds = 0;
       if (t.started_at) {
         const start = new Date(t.started_at).getTime();
         const end = t.finished_at ? new Date(t.finished_at).getTime() : Date.now();
         elapsedSeconds = Math.max(0, Math.floor((end - start) / 1000));
       }
-      const totalEffectiveTime = elapsedSeconds + (t.total_penalty_seconds || 0);
 
       return {
         id: t.id,
@@ -63,17 +62,15 @@ export async function GET(request) {
         currentLevel: Math.min(10, t.current_level),
         isFinished: t.current_level > 10,
         elapsedSeconds,
-        penaltySeconds: t.total_penalty_seconds || 0,
-        totalEffectiveTime,
         isMyTeam: t.id === team.id,
       };
     });
 
-    // Sort ranked
+    // Sort ranked: finished first, then current level DESC, then elapsedSeconds ASC
     rankedEraTeams.sort((a, b) => {
       if (b.isFinished !== a.isFinished) return b.isFinished ? 1 : -1;
       if (b.currentLevel !== a.currentLevel) return b.currentLevel - a.currentLevel;
-      return a.totalEffectiveTime - b.totalEffectiveTime;
+      return a.elapsedSeconds - b.elapsedSeconds;
     });
 
     const myRankIndex = rankedEraTeams.findIndex(t => t.id === team.id);
@@ -101,8 +98,6 @@ export async function GET(request) {
         isFinished: team.current_level > 10,
         finishedAt: team.finished_at,
         elapsedSeconds: teamElapsedSeconds,
-        penaltySeconds: team.total_penalty_seconds || 0,
-        totalEffectiveTime: teamElapsedSeconds + (team.total_penalty_seconds || 0),
         rankInEra: myRank,
         totalTeamsInEra: rankedEraTeams.length,
       },
@@ -118,4 +113,3 @@ export async function GET(request) {
     return NextResponse.json({ error: 'Server error' }, { status: 500 });
   }
 }
-

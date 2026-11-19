@@ -1,5 +1,5 @@
 // ========================================================
-// app/api/game/hint/route.js - Hint Ladder & Penalty Application
+// app/api/game/hint/route.js - Free Helpful Hint Ladder (No Penalties)
 // ========================================================
 
 import { NextResponse } from 'next/server';
@@ -18,7 +18,7 @@ export async function POST(request) {
       return NextResponse.json({ error: 'لست في فريق' }, { status: 403 });
     }
 
-    const gameState = await queryOne(`SELECT state, hint2_penalty_seconds, hint3_penalty_seconds FROM game_state WHERE id = 1`);
+    const gameState = await queryOne(`SELECT state FROM game_state WHERE id = 1`);
     if (!gameState || gameState.state !== 'RUNNING') {
       return NextResponse.json({ error: 'المرحلة غير جارية حالياً' }, { status: 400 });
     }
@@ -68,57 +68,35 @@ export async function POST(request) {
       return NextResponse.json({ error: 'يجب كشف التلميح الثاني أولاً' }, { status: 400 });
     }
 
-    // If already unlocked, just return the text
     let hintText = '';
     if (hintNumber === 1) hintText = level.hint1_text;
     if (hintNumber === 2) hintText = level.hint2_text;
     if (hintNumber === 3) hintText = level.hint3_text;
 
-    if (hintsUsed.includes(hintNumber)) {
-      return NextResponse.json({
-        success: true,
-        hintNumber,
-        text: hintText,
-        alreadyUnlocked: true,
-      });
+    if (!hintsUsed.includes(hintNumber)) {
+      hintsUsed.push(hintNumber);
+
+      // Upsert team_level_progress
+      if (prog) {
+        await execute(
+          `UPDATE team_level_progress SET hints_used = ? WHERE id = ?`,
+          [JSON.stringify(hintsUsed), prog.id]
+        );
+      } else {
+        await execute(
+          `INSERT INTO team_level_progress (team_id, era_id, level_number, hints_used)
+           VALUES (?, ?, ?, ?)`,
+          [team.id, team.era_id, team.current_level, JSON.stringify(hintsUsed)]
+        );
+      }
+
+      await logEvent(team.id, member.id, 'HINT_UNLOCKED', { hintNumber });
     }
-
-    // Calculate penalty
-    let penaltySeconds = 0;
-    if (hintNumber === 2) penaltySeconds = gameState.hint2_penalty_seconds || 60;
-    if (hintNumber === 3) penaltySeconds = gameState.hint3_penalty_seconds || 120;
-
-    hintsUsed.push(hintNumber);
-
-    // Apply penalty to team
-    if (penaltySeconds > 0) {
-      await execute(
-        `UPDATE teams SET total_penalty_seconds = total_penalty_seconds + ? WHERE id = ?`,
-        [penaltySeconds, team.id]
-      );
-    }
-
-    // Upsert team_level_progress
-    if (prog) {
-      await execute(
-        `UPDATE team_level_progress SET hints_used = ? WHERE id = ?`,
-        [JSON.stringify(hintsUsed), prog.id]
-      );
-    } else {
-      await execute(
-        `INSERT INTO team_level_progress (team_id, era_id, level_number, hints_used)
-         VALUES (?, ?, ?, ?)`,
-        [team.id, team.era_id, team.current_level, JSON.stringify(hintsUsed)]
-      );
-    }
-
-    await logEvent(team.id, member.id, 'HINT_UNLOCKED', { hintNumber, penaltySeconds });
 
     return NextResponse.json({
       success: true,
       hintNumber,
       text: hintText,
-      penaltySeconds,
     });
   } catch (err) {
     console.error('Game hint POST error:', err);

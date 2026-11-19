@@ -16,6 +16,7 @@ export default function AdminPage() {
 
   // Active Main Tab
   const [activeTab, setActiveTab] = useState('journey'); // 'journey' | 'teams' | 'monitor' | 'content' | 'stage' | 'printables'
+  const [durationMinutes, setDurationMinutes] = useState(180); // Default 3 hours
 
   // Dashboard Data
   const [journeyData, setJourneyData] = useState(null);
@@ -399,8 +400,55 @@ export default function AdminPage() {
                 </div>
               </div>
 
+              {/* Duration Selector for Game Master */}
+              <div className="w-full border-t border-slate-800/80 pt-4 flex flex-wrap items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-bold text-slate-300">⏱️ مدة المسابقة (للإغلاق التلقائي):</span>
+                  <div className="flex gap-1 bg-slate-900 p-1 rounded-lg border border-slate-800">
+                    {[
+                      { min: 60, label: 'ساعة' },
+                      { min: 120, label: 'ساعتان' },
+                      { min: 180, label: '3 ساعات' },
+                    ].map((d) => (
+                      <button
+                        key={d.min}
+                        type="button"
+                        onClick={() => setDurationMinutes(d.min)}
+                        className={`px-3 py-1 rounded text-xs font-semibold transition ${
+                          durationMinutes === d.min
+                            ? 'bg-amber-600 text-slate-950 font-bold'
+                            : 'text-slate-400 hover:text-slate-200'
+                        }`}
+                      >
+                        {d.label}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex items-center gap-1 text-xs text-slate-400">
+                    <span>أو:</span>
+                    <input
+                      type="number"
+                      value={durationMinutes}
+                      onChange={(e) => setDurationMinutes(Number(e.target.value) || 60)}
+                      className="w-16 px-2 py-1 rounded bg-slate-900 border border-slate-800 text-slate-100 text-xs text-center"
+                    />
+                    <span>دقيقة</span>
+                  </div>
+                </div>
+
+                {/* Live Remaining Time when RUNNING */}
+                {gameState === 'RUNNING' && journeyData?.endAtEpoch && (
+                  <div className="flex items-center gap-2 bg-slate-900 px-3 py-1.5 rounded-lg border border-amber-600/50">
+                    <span className="text-xs text-slate-400 font-semibold">الوقت المتبقي حتى انتهاء المسابقة:</span>
+                    <span className="text-sm font-mono font-black text-amber-400">
+                      {Math.max(0, Math.floor((journeyData.endAtEpoch - Date.now()) / 1000 / 60))} دقيقة متبقية
+                    </span>
+                  </div>
+                )}
+              </div>
+
               {/* Action Buttons */}
-              <div className="flex flex-wrap items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 pt-2">
                 {gameState === 'LOBBY' && (
                   <button
                     type="button"
@@ -415,14 +463,14 @@ export default function AdminPage() {
                   <>
                     <button
                       type="button"
-                      onClick={() => triggerJourneyAction('START_COUNTDOWN', { seconds: 10 })}
-                      className="px-4 py-2.5 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-xs shadow animate-pulse"
+                      onClick={() => triggerJourneyAction('START_COUNTDOWN', { seconds: 10, durationMinutes })}
+                      className="px-5 py-3 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-black text-xs shadow animate-pulse flex items-center gap-2"
                     >
-                      ⏱️ بدء العد التنازلي الموحد (10 ثوانٍ)
+                      <span>🚀 بدء الرحلة والعد التنازلي الموحد (10..0 مع الصوت)</span>
                     </button>
                     <button
                       type="button"
-                      onClick={() => triggerJourneyAction('START_NOW')}
+                      onClick={() => triggerJourneyAction('START_NOW', { durationMinutes })}
                       className="px-3 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold"
                     >
                       بدء فوري بدون عد

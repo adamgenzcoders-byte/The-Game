@@ -2,7 +2,7 @@
 'use client';
 
 // ========================================================
-// app/play/page.jsx - Player Home (Calm, Minimal, Arabic RTL)
+// app/play/page.jsx - Player Home (Active Competition)
 // ========================================================
 
 import { useState, useEffect } from 'react';
@@ -18,8 +18,8 @@ export default function PlayPage() {
   const [submitting, setSubmitting] = useState(false);
   const [feedback, setFeedback] = useState(null); // { type: 'success' | 'error', message }
 
-  // Lockout timer
-  const [lockoutRemaining, setLockoutRemaining] = useState(0);
+  // Game Countdown Clock (From Admin Configured Duration)
+  const [remainingTimeSeconds, setRemainingTimeSeconds] = useState(null);
 
   // Modals & Popups
   const [showPhotoModal, setShowPhotoModal] = useState(false);
@@ -28,8 +28,6 @@ export default function PlayPage() {
   const [qrResolving, setQrResolving] = useState(false);
   const [qrResult, setQrResult] = useState(null);
 
-  // Hint confirmation modal
-  const [pendingHintNumber, setPendingHintNumber] = useState(null);
   const [hintLoading, setHintLoading] = useState(false);
 
   // Polling active level
@@ -53,14 +51,16 @@ export default function PlayPage() {
 
         const data = await res.json();
 
-        // Check if not running
+        // Check if not running (Lock it!)
         if (data.gameState && data.gameState !== 'RUNNING') {
           router.replace('/lobby');
           return;
         }
 
-        if (data.lockedOut) {
-          setLockoutRemaining(data.remainingSeconds || 30);
+        // Calculate remaining event time
+        if (data.endAtEpoch) {
+          const diff = Math.max(0, Math.floor((data.endAtEpoch - Date.now()) / 1000));
+          setRemainingTimeSeconds(diff);
         }
 
         setLevelData(data);
@@ -72,22 +72,36 @@ export default function PlayPage() {
     }
 
     fetchCurrentLevel();
-    const interval = setInterval(fetchCurrentLevel, 4000);
+    const interval = setInterval(fetchCurrentLevel, 3000);
     return () => clearInterval(interval);
   }, [router]);
 
-  // Lockout tick
+  // Global game timer tick
   useEffect(() => {
-    if (lockoutRemaining <= 0) return;
+    if (remainingTimeSeconds === null || remainingTimeSeconds <= 0) return;
     const timer = setInterval(() => {
-      setLockoutRemaining((prev) => Math.max(0, prev - 1));
+      setRemainingTimeSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
     return () => clearInterval(timer);
-  }, [lockoutRemaining]);
+  }, [remainingTimeSeconds]);
+
+  function formatDuration(totalSeconds) {
+    if (totalSeconds === null || totalSeconds <= 0) return '00:00:00';
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
 
   async function handleSubmitAnswer(e) {
     if (e) e.preventDefault();
-    if (lockoutRemaining > 0 || submitting) return;
+    if (submitting) return;
 
     const token = localStorage.getItem('device_token');
     const isMulti = levelData?.level?.questions && Array.isArray(levelData.level.questions);
@@ -122,10 +136,7 @@ export default function PlayPage() {
 
       const data = await res.json();
 
-      if (data.lockedOut) {
-        setLockoutRemaining(data.remainingSeconds || 30);
-        setFeedback({ type: 'error', message: data.message });
-      } else if (data.correct) {
+      if (data.correct) {
         setFeedback({ type: 'success', message: data.message || 'إجابة صحيحة!' });
         setAnswer('');
         setMultiAnswer({ ans1: '', ans2: '' });
@@ -138,9 +149,9 @@ export default function PlayPage() {
           const freshData = await freshRes.json();
           setLevelData(freshData);
           setFeedback(null);
-        }, 1200);
+        }, 1000);
       } else {
-        setFeedback({ type: 'error', message: data.message || 'إجابة غير صحيحة، حاول مجدداً' });
+        setFeedback({ type: 'error', message: data.message || 'إجابة غير صحيحة، حاول مجدداً مع فريقك' });
       }
     } catch (err) {
       setFeedback({ type: 'error', message: 'تعذر التحقق من الإجابة، تفقد الشبكة' });
@@ -181,7 +192,6 @@ export default function PlayPage() {
       console.error(err);
     } finally {
       setHintLoading(false);
-      setPendingHintNumber(null);
     }
   }
 
@@ -317,9 +327,22 @@ export default function PlayPage() {
         </div>
       </header>
 
+      {/* GAME COUNTDOWN CLOCK BANNER */}
+      {remainingTimeSeconds !== null && (
+        <div className="my-2 py-2 px-3 rounded-xl bg-[#121620] border border-amber-900/40 flex items-center justify-between text-xs">
+          <span className="text-slate-400 font-semibold flex items-center gap-1.5">
+            <span>⏱️</span>
+            <span>الوقت المتبقي في السباق:</span>
+          </span>
+          <span className="font-mono font-bold text-amber-400 text-sm">
+            {formatDuration(remainingTimeSeconds)}
+          </span>
+        </div>
+      )}
+
       {/* 2. CALM SAFETY BANNER */}
       {levelData?.safetyBanner && (
-        <aside className="my-2 py-1.5 px-3 rounded-lg bg-slate-900/50 border border-slate-800/80 text-[11px] text-slate-400 text-center">
+        <aside className="my-1 py-1.5 px-3 rounded-lg bg-slate-900/50 border border-slate-800/80 text-[11px] text-slate-400 text-center">
           {levelData.safetyBanner}
         </aside>
       )}
@@ -373,7 +396,7 @@ export default function PlayPage() {
                   className="w-full h-36 object-cover object-center group-hover:scale-102 transition duration-300"
                 />
                 <div className="absolute inset-0 bg-slate-950/40 flex items-center justify-center text-xs text-white font-semibold">
-                  🔍 اضغط لتكبير صورة الدليل
+                  🔍 اضغط لتكبير صورة الدليل بالمدرسة
                 </div>
               </button>
             </div>
@@ -397,25 +420,22 @@ export default function PlayPage() {
           )}
         </div>
 
-        {/* 4. HINT LADDER ACCORDION */}
+        {/* 4. HELPFUL HINT LADDER (NO PENALTIES) */}
         <div className="p-3 rounded-xl bg-[#121620] border border-slate-800 space-y-2">
           <div className="text-[11px] font-bold text-slate-400">
-            سلم التلميحات (استخدمها عند الحاجة)
+            سلم التلميحات المساعدة (بدون أي خصم وقت)
           </div>
 
           <div className="space-y-1.5">
             {[1, 2, 3].map((num) => {
-              const h = hints[num] || { unlocked: false, text: null, penalty: 0 };
+              const h = hints[num] || { unlocked: false, text: null };
               const isLockedByPrior = (num === 2 && !hints[1]?.unlocked) || (num === 3 && !hints[2]?.unlocked);
 
               return (
                 <div key={num} className="rounded-lg bg-slate-900/60 border border-slate-800/60 p-2.5 text-xs">
                   <div className="flex items-center justify-between">
                     <span className="font-medium text-slate-300">
-                      التلميح {num}{' '}
-                      {num === 1 && '(مجاني)'}
-                      {num === 2 && '(+60 ثانية جزاء)'}
-                      {num === 3 && '(+120 ثانية جزاء)'}
+                      التلميح {num}
                     </span>
 
                     {h.unlocked ? (
@@ -424,16 +444,10 @@ export default function PlayPage() {
                       <button
                         type="button"
                         disabled={isLockedByPrior || hintLoading}
-                        onClick={() => {
-                          if (num === 1) {
-                            handleUnlockHint(1);
-                          } else {
-                            setPendingHintNumber(num);
-                          }
-                        }}
-                        className="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-200 disabled:opacity-30 transition"
+                        onClick={() => handleUnlockHint(num)}
+                        className="px-2.5 py-1 text-[11px] rounded bg-slate-800 hover:bg-slate-700 text-slate-200 disabled:opacity-30 transition font-semibold"
                       >
-                        كشف
+                        كشف التلميح
                       </button>
                     )}
                   </div>
@@ -464,119 +478,70 @@ export default function PlayPage() {
             </div>
           )}
 
-          {/* Lockout overlay / warning */}
-          {lockoutRemaining > 0 ? (
-            <div className="p-4 rounded-xl bg-rose-950/40 border border-rose-900 text-center space-y-2">
-              <p className="text-xs text-rose-300 font-bold">
-                محاولات مقفولة مؤقتاً لتكرار الخطأ
-              </p>
-              <div className="text-2xl font-black text-rose-400">
-                {lockoutRemaining} ثانية
-              </div>
-              <p className="text-[11px] text-slate-400">
-                راجع مع فريقك الدليل وسلّم التلميحات بهدوء.
-              </p>
-            </div>
-          ) : (
-            <form onSubmit={handleSubmitAnswer} className="space-y-3">
-              {isMulti ? (
-                <div className="space-y-2">
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-400 mb-1">
-                      {level.questions[0]}
-                    </label>
-                    <input
-                      type="text"
-                      value={multiAnswer.ans1}
-                      onChange={(e) => setMultiAnswer((p) => ({ ...p, ans1: e.target.value }))}
-                      placeholder="الإجابة الأولى..."
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-[11px] font-medium text-slate-400 mb-1">
-                      {level.questions[1]}
-                    </label>
-                    <input
-                      type="text"
-                      value={multiAnswer.ans2}
-                      onChange={(e) => setMultiAnswer((p) => ({ ...p, ans2: e.target.value }))}
-                      placeholder="الإجابة الثانية..."
-                      className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600"
-                    />
-                  </div>
-                </div>
-              ) : (
+          <form onSubmit={handleSubmitAnswer} className="space-y-3">
+            {isMulti ? (
+              <div className="space-y-2">
                 <div>
-                  <label className="block text-xs font-medium text-slate-300 mb-1.5">
-                    إجابة المستوى أو الكود الميداني
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                    {level.questions[0]}
                   </label>
                   <input
                     type="text"
-                    value={answer}
-                    onChange={(e) => setAnswer(e.target.value)}
-                    placeholder="اكتب الحل أو الكلمة أو الرقم هنا..."
-                    className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-amber-600"
+                    value={multiAnswer.ans1}
+                    onChange={(e) => setMultiAnswer((p) => ({ ...p, ans1: e.target.value }))}
+                    placeholder="الإجابة الأولى..."
+                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600"
                   />
                 </div>
-              )}
-
-              <div className="flex gap-2">
-                <button
-                  type="submit"
-                  disabled={submitting}
-                  className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs transition disabled:opacity-50"
-                >
-                  {submitting ? 'جاري التحقق...' : 'تأكيد الحل'}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowQrModal(true)}
-                  className="px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition"
-                >
-                  <span>📷</span>
-                  <span>مسح QR</span>
-                </button>
+                <div>
+                  <label className="block text-[11px] font-medium text-slate-400 mb-1">
+                    {level.questions[1]}
+                  </label>
+                  <input
+                    type="text"
+                    value={multiAnswer.ans2}
+                    onChange={(e) => setMultiAnswer((p) => ({ ...p, ans2: e.target.value }))}
+                    placeholder="الإجابة الثانية..."
+                    className="w-full px-3 py-2 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs focus:outline-none focus:border-amber-600"
+                  />
+                </div>
               </div>
-            </form>
-          )}
-        </div>
-      </section>
+            ) : (
+              <div>
+                <label className="block text-xs font-medium text-slate-300 mb-1.5">
+                  إجابة المستوى أو الكود الميداني
+                </label>
+                <input
+                  type="text"
+                  value={answer}
+                  onChange={(e) => setAnswer(e.target.value)}
+                  placeholder="اكتب الحل أو الكلمة أو الرقم هنا..."
+                  className="w-full px-4 py-3 rounded-xl bg-slate-900 border border-slate-800 text-slate-100 text-sm focus:outline-none focus:border-amber-600"
+                />
+              </div>
+            )}
 
-      {/* CONFIRM HINT PENALTY MODAL */}
-      {pendingHintNumber && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4">
-          <div className="bg-[#121620] border border-slate-800 p-5 rounded-2xl max-w-xs w-full text-center space-y-3">
-            <h3 className="text-sm font-bold text-amber-400">
-              تأكيد كشف التلميح {pendingHintNumber}
-            </h3>
-            <p className="text-xs text-slate-300">
-              كشف هذا التلميح سيضيف غرامة زمنية قدرها{' '}
-              <span className="font-bold text-rose-400">
-                +{pendingHintNumber === 2 ? '60' : '120'} ثانية
-              </span>{' '}
-              إلى وقت فريقكم الكلي في سباق العصر.
-            </p>
-            <div className="flex gap-2 pt-2">
+            <div className="flex gap-2">
               <button
-                type="button"
-                onClick={() => handleUnlockHint(pendingHintNumber)}
-                className="flex-1 py-2 rounded-lg bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs"
+                type="submit"
+                disabled={submitting}
+                className="flex-1 py-3 px-4 rounded-xl bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold text-xs transition disabled:opacity-50"
               >
-                موافق، اكشف التلميح
+                {submitting ? 'جاري التحقق...' : 'تأكيد الحل'}
               </button>
+
               <button
                 type="button"
-                onClick={() => setPendingHintNumber(null)}
-                className="px-4 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs"
+                onClick={() => setShowQrModal(true)}
+                className="px-3.5 py-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-semibold flex items-center gap-1.5 transition"
               >
-                تراجع
+                <span>📷</span>
+                <span>مسح QR</span>
               </button>
             </div>
-          </div>
+          </form>
         </div>
-      )}
+      </section>
 
       {/* PHOTO ZOOM MODAL */}
       {showPhotoModal && level?.photoUrl && (
@@ -621,7 +586,7 @@ export default function PlayPage() {
             <div className="space-y-2">
               <input
                 type="text"
-                placeholder="أدخل رمز الـ QR (مثال: QR-PHAR-02)..."
+                placeholder="أدخل رمز الـ QR (مثال: qr_stairs_2)..."
                 value={manualQrToken}
                 onChange={(e) => setManualQrToken(e.target.value)}
                 className="w-full px-3 py-2.5 rounded-lg bg-slate-900 border border-slate-800 text-slate-100 text-xs"

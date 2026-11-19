@@ -40,20 +40,6 @@ export async function GET(request) {
       return NextResponse.json({ error: 'بيانات الفريق غير موجودة' }, { status: 404 });
     }
 
-    // Check lockout
-    if (team.locked_until) {
-      const lockTime = new Date(team.locked_until).getTime();
-      const now = Date.now();
-      if (lockTime > now) {
-        return NextResponse.json({
-          lockedOut: true,
-          lockedUntil: team.locked_until,
-          remainingSeconds: Math.ceil((lockTime - now) / 1000),
-          safetyBanner: gameState.safety_banner,
-        });
-      }
-    }
-
     // Check if finished (completed 10 levels)
     if (team.current_level > 10) {
       const isStoryteller = team.storyteller_team_id === team.id;
@@ -64,7 +50,6 @@ export async function GET(request) {
         eraName: team.era_name,
         eraColor: team.era_color,
         eraRuler: team.era_ruler,
-        totalPenaltySeconds: team.total_penalty_seconds,
         finishedAt: team.finished_at,
         curseText: gameState.curse_text,
       });
@@ -104,11 +89,11 @@ export async function GET(request) {
     // Effective clue text
     const effectiveClueText = (override && override.clue_text) ? override.clue_text : level.base_clue_text;
 
-    // Hints payload - only reveal text if unlocked!
+    // Hints payload - only reveal text if unlocked
     const hints = {
-      1: { unlocked: hintsUsed.includes(1), text: hintsUsed.includes(1) ? level.hint1_text : null, penalty: 0 },
-      2: { unlocked: hintsUsed.includes(2), text: hintsUsed.includes(2) ? level.hint2_text : null, penalty: gameState.hint2_penalty_seconds || 60 },
-      3: { unlocked: hintsUsed.includes(3), text: hintsUsed.includes(3) ? level.hint3_text : null, penalty: gameState.hint3_penalty_seconds || 120 },
+      1: { unlocked: hintsUsed.includes(1), text: hintsUsed.includes(1) ? level.hint1_text : null },
+      2: { unlocked: hintsUsed.includes(2), text: hintsUsed.includes(2) ? level.hint2_text : null },
+      3: { unlocked: hintsUsed.includes(3), text: hintsUsed.includes(3) ? level.hint3_text : null },
     };
 
     // Parse answer types
@@ -132,7 +117,7 @@ export async function GET(request) {
 
     // Booth info if Beat 4
     let booth = null;
-    if (level.clue_type === 'BOOTH_GAME') {
+    if (level.clue_type === 'BOOTH_GAME' || level.clue_type === 'BOOTH') {
       const bRow = await queryOne(
         `SELECT game_name, rules_ar, win_condition, safety_notes FROM booths WHERE era_id = ? AND level_number = ?`,
         [team.era_id, team.current_level]
@@ -150,6 +135,8 @@ export async function GET(request) {
 
     return NextResponse.json({
       gameState: 'RUNNING',
+      serverNow: Date.now(),
+      endAtEpoch: gameState.end_at_epoch,
       team: {
         id: team.id,
         name: team.name,

@@ -108,7 +108,7 @@ export default function ProgressPage() {
                 الترتيب في العصر
               </span>
               <span className="text-base font-black text-amber-400">
-                {team?.rankInEra}{' '}
+                #{team?.rankInEra}{' '}
                 <span className="text-[10px] text-slate-400 font-normal">
                   / {team?.totalTeamsInEra}
                 </span>
@@ -117,24 +117,12 @@ export default function ProgressPage() {
           </div>
         </div>
 
-        {/* Time & Penalties Card */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="p-3 rounded-xl bg-[#121620] border border-slate-800">
-            <span className="text-[11px] text-slate-400 block mb-1">الوقت الميداني الفعلي</span>
-            <span className="text-sm font-bold text-slate-200">
-              {formatTime(team?.elapsedSeconds || 0)}
-            </span>
-          </div>
-          <div className="p-3 rounded-xl bg-[#121620] border border-slate-800">
-            <span className="text-[11px] text-slate-400 block mb-1">غرامات التلميحات</span>
-            <span
-              className={`text-sm font-bold ${
-                team?.penaltySeconds > 0 ? 'text-rose-400' : 'text-slate-200'
-              }`}
-            >
-              +{team?.penaltySeconds || 0} ثانية
-            </span>
-          </div>
+        {/* Elapsed Time Metric */}
+        <div className="p-3 rounded-xl bg-[#121620] border border-slate-800 flex items-center justify-between">
+          <span className="text-xs text-slate-400 font-semibold">الوقت الميداني الفعلي للفريق:</span>
+          <span className="text-sm font-mono font-bold text-slate-200">
+            {formatTime(team?.elapsedSeconds || 0)}
+          </span>
         </div>
 
         {/* Team Members List */}
@@ -162,7 +150,7 @@ export default function ProgressPage() {
             <h2 className="text-xs font-bold text-slate-200">
               سباق فرق {team?.eraName}
             </h2>
-            <span className="text-[10px] text-slate-500">مباشر ومحدث تلقائياً</span>
+            <span className="text-[10px] text-slate-500">مباشر كمسابقة هاكاثون</span>
           </div>
 
           <div className="space-y-2">
@@ -176,7 +164,7 @@ export default function ProgressPage() {
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <span className="font-bold text-slate-400 w-4">{idx + 1}</span>
+                  <span className="font-bold text-slate-400 w-4">#{idx + 1}</span>
                   <span>{t.icon}</span>
                   <span
                     className={`font-semibold ${
@@ -215,4 +203,3 @@ export default function ProgressPage() {
     </main>
   );
 }
-

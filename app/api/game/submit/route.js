@@ -1,5 +1,5 @@
 // ========================================================
-// app/api/game/submit/route.js - Answer Evaluation & Progression
+// app/api/game/submit/route.js - Friendly Answer Evaluation & Progression
 // ========================================================
 
 import { NextResponse } from 'next/server';
@@ -20,29 +20,19 @@ export async function POST(request) {
     }
 
     // Check game state
-    const gameState = await queryOne(`SELECT state, wrong_lockout_seconds FROM game_state WHERE id = 1`);
+    const gameState = await queryOne(`SELECT state, end_at_epoch FROM game_state WHERE id = 1`);
     if (!gameState || gameState.state !== 'RUNNING') {
-      return NextResponse.json({ error: 'المرحلة غير جارية حالياً' }, { status: 400 });
+      return NextResponse.json({ error: 'المنافسة غير جارية حالياً (انتظر إشارة الجيم ماستر)' }, { status: 400 });
+    }
+
+    // Check time expired
+    if (gameState.end_at_epoch && Date.now() >= gameState.end_at_epoch) {
+      return NextResponse.json({ error: 'انتهى الوقت المحدد للمسابقة!' }, { status: 400 });
     }
 
     const team = await queryOne(`SELECT * FROM teams WHERE id = ?`, [member.team_id]);
     if (!team) {
       return NextResponse.json({ error: 'الفريق غير موجود' }, { status: 404 });
-    }
-
-    // Check lockout
-    if (team.locked_until) {
-      const lockTime = new Date(team.locked_until).getTime();
-      const now = Date.now();
-      if (lockTime > now) {
-        const remaining = Math.ceil((lockTime - now) / 1000);
-        return NextResponse.json({
-          correct: false,
-          lockedOut: true,
-          remainingSeconds: remaining,
-          message: `الفريق محظور مؤقتاً بسبب تكرار المحاولات الخاطئة. انتظر ${remaining} ثانية`,
-        }, { status: 429 });
-      }
     }
 
     if (team.current_level > 10) {
@@ -100,48 +90,21 @@ export async function POST(request) {
       isCorrect = checkAnswer(String(submittedAnswer || ''), validList);
     }
 
-    // IF WRONG
+    // IF WRONG (No Lockout, No penalty! Just friendly retry)
     if (!isCorrect) {
       const newAttempts = (team.wrong_attempts || 0) + 1;
-      const lockoutSeconds = gameState.wrong_lockout_seconds || 30;
+      await execute(`UPDATE teams SET wrong_attempts = ? WHERE id = ?`, [newAttempts, team.id]);
+      await logEvent(team.id, member.id, 'WRONG_ANSWER_ATTEMPT', { attempts: newAttempts });
 
-      if (newAttempts >= 5) {
-        const lockoutUntil = new Date(Date.now() + lockoutSeconds * 1000).toISOString();
-        await execute(
-          `UPDATE teams SET wrong_attempts = 0, locked_until = ? WHERE id = ?`,
-          [lockoutUntil, team.id]
-        );
-        await logEvent(team.id, member.id, 'TEAM_LOCKOUT_TRIGGERED', { attempts: newAttempts, lockoutSeconds });
-
-        return NextResponse.json({
-          correct: false,
-          lockedOut: true,
-          remainingSeconds: lockoutSeconds,
-          message: `5 محاولات خاطئة متتالية! تم قفل المحاولات لمدة ${lockoutSeconds} ثانية للتأمل والمراجعة.`,
-        });
-      } else {
-        await execute(
-          `UPDATE teams SET wrong_attempts = ? WHERE id = ?`,
-          [newAttempts, team.id]
-        );
-        await logEvent(team.id, member.id, 'WRONG_ANSWER_ATTEMPT', { attempts: newAttempts });
-
-        return NextResponse.json({
-          correct: false,
-          lockedOut: false,
-          attempts: newAttempts,
-          remainingAttempts: 5 - newAttempts,
-          message: `إجابة غير صحيحة. متبقي ${5 - newAttempts} محاولات قبل القفل المؤقت.`,
-        });
-      }
+      return NextResponse.json({
+        correct: false,
+        attempts: newAttempts,
+        message: 'إجابة غير صحيحة، راجع الدليل والتلميحات وحاول مجدداً مع فريقك!',
+      });
     }
 
     // IF CORRECT
-    // Clear wrong attempts and lockout
-    await execute(
-      `UPDATE teams SET wrong_attempts = 0, locked_until = NULL WHERE id = ?`,
-      [team.id]
-    );
+    await execute(`UPDATE teams SET wrong_attempts = 0 WHERE id = ?`, [team.id]);
 
     // Record solution in progress
     const nowIso = new Date().toISOString();

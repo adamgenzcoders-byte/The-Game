@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 
 export default function RaceProjectorPage() {
   const [data, setData] = useState(null);
+  const [remainingTimeSeconds, setRemainingTimeSeconds] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -17,6 +18,14 @@ export default function RaceProjectorPage() {
         const res = await fetch('/api/race-projector');
         const json = await res.json();
         setData(json);
+
+        // Fetch journey end_at_epoch
+        const jRes = await fetch('/api/journey');
+        const jData = await jRes.json();
+        if (jData.endAtEpoch) {
+          const diff = Math.max(0, Math.floor((jData.endAtEpoch - Date.now()) / 1000));
+          setRemainingTimeSeconds(diff);
+        }
       } catch (err) {
         console.error(err);
       } finally {
@@ -28,6 +37,22 @@ export default function RaceProjectorPage() {
     const interval = setInterval(fetchRace, 2000);
     return () => clearInterval(interval);
   }, []);
+
+  useEffect(() => {
+    if (remainingTimeSeconds === null || remainingTimeSeconds <= 0) return;
+    const timer = setInterval(() => {
+      setRemainingTimeSeconds((prev) => Math.max(0, prev - 1));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [remainingTimeSeconds]);
+
+  function formatDuration(totalSeconds) {
+    if (totalSeconds === null || totalSeconds <= 0) return '00:00:00';
+    const hrs = Math.floor(totalSeconds / 3600);
+    const mins = Math.floor((totalSeconds % 3600) / 60);
+    const secs = totalSeconds % 60;
+    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  }
 
   if (loading) {
     return (
@@ -53,7 +78,18 @@ export default function RaceProjectorPage() {
           </h1>
         </div>
 
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
+          {remainingTimeSeconds !== null && (
+            <div className="bg-[#121620] border border-amber-600/50 px-4 py-2 rounded-xl text-center">
+              <span className="text-[10px] text-slate-400 uppercase block font-semibold">
+                الوقت المتبقي في السباق
+              </span>
+              <span className="font-mono text-base font-black text-amber-400">
+                {formatDuration(remainingTimeSeconds)}
+              </span>
+            </div>
+          )}
+
           <div className="text-right">
             <span className="text-[10px] text-slate-500 uppercase block">حالة اللعبة</span>
             <span
@@ -163,11 +199,6 @@ export default function RaceProjectorPage() {
                         ) : (
                           `${Math.floor(t.elapsedSeconds / 60)}د ${t.elapsedSeconds % 60}ث`
                         )}
-                        {t.penaltySeconds > 0 && (
-                          <span className="text-rose-400 text-[10px] block">
-                            +{t.penaltySeconds}ث
-                          </span>
-                        )}
                       </div>
                     </div>
                   );
@@ -185,4 +216,3 @@ export default function RaceProjectorPage() {
     </main>
   );
 }
-
