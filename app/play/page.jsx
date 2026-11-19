@@ -695,9 +695,18 @@ export default function PlayPage() {
                   </div>
 
                   {h.unlocked && h.text && (
-                    <p className="mt-2 text-slate-200 text-xs bg-slate-950/70 p-2.5 rounded-lg border border-slate-800/80 leading-relaxed">
-                      💡 {h.text}
-                    </p>
+                    <div className="mt-2 text-slate-200 text-xs bg-slate-950/70 p-2.5 rounded-lg border border-slate-800/80 leading-relaxed space-y-2">
+                      <p>💡 {h.text.replace(/\[img:\s*([^\]]+)\]/g, '').trim()}</p>
+                      {h.text.match(/\[img:\s*([^\]]+)\]/) && (
+                        <div className="rounded-lg overflow-hidden border border-amber-600/50 mt-2 bg-black/90 p-1">
+                          <img
+                            src={h.text.match(/\[img:\s*([^\]]+)\]/)[1]}
+                            alt="صورة التلميح"
+                            className="w-full max-h-60 object-contain block mx-auto rounded"
+                          />
+                        </div>
+                      )}
+                    </div>
                   )}
                 </div>
               );
