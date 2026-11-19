@@ -9,7 +9,7 @@ export async function POST(request) {
   try {
     const body = await request.json();
     const password = (body.password || '').trim();
-    const adminSecret = process.env.ADMIN_PASSWORD || 'AD@776@z776@';
+    const adminSecret = process.env.ADMIN_PASSWORD || 'AD@776@z776';
 
     if (password === adminSecret) {
       const response = NextResponse.json({ success: true, token: adminSecret });
