@@ -102,6 +102,52 @@ export async function GET(request) {
     // Effective clue text
     const effectiveClueText = (override && override.clue_text) ? override.clue_text : level.base_clue_text;
 
+    // Special Beat 1 (Engineer Clues): Split into Clue 1 (visible) and Clue 2 (blurred)
+    let engineerClues = null;
+    let cleanClueText = effectiveClueText;
+
+    if (team.current_level === 1) {
+      try {
+        const parsed = JSON.parse(effectiveClueText);
+        if (parsed.clue1 && parsed.clue2) {
+          engineerClues = parsed;
+          cleanClueText = parsed.clue1;
+        }
+      } catch (e) {
+        const parts = effectiveClueText.split('،');
+        if (parts.length >= 2) {
+          engineerClues = {
+            clue1: parts[0].trim(),
+            clue2: parts.slice(1).join('،').trim(),
+          };
+          cleanClueText = parts[0].trim();
+        }
+      }
+
+      if (engineerClues) {
+        const progLvl1 = await queryOne(
+          `SELECT clue2_revealed FROM team_level_progress WHERE team_id = ? AND level_number = 1`,
+          [team.id]
+        );
+        const isClue2Revealed = Boolean(progLvl1 && progLvl1.clue2_revealed);
+
+        let elapsedSec = 0;
+        if (team.started_at) {
+          elapsedSec = Math.floor((Date.now() - new Date(team.started_at).getTime()) / 1000);
+        }
+        const remainingTenMinSec = Math.max(0, 600 - elapsedSec);
+
+        engineerClues = {
+          clue1: engineerClues.clue1,
+          clue2: isClue2Revealed ? engineerClues.clue2 : null,
+          clue2Preview: engineerClues.clue2,
+          clue2Revealed: isClue2Revealed,
+          remainingTenMinSec,
+          potentialPoints: (isClue2Revealed || remainingTenMinSec === 0) ? 5 : 10,
+        };
+      }
+    }
+
     // Hints payload - only reveal text if unlocked
     const hints = {
       1: { unlocked: hintsUsed.includes(1), text: hintsUsed.includes(1) ? level.hint1_text : null },
@@ -180,7 +226,8 @@ export async function GET(request) {
         title: level.title,
         storyText: level.story_text,
         clueType: level.clue_type,
-        clueText: effectiveClueText,
+        clueText: cleanClueText,
+        engineerClues,
         answerTypes,
         questions,
         booth,

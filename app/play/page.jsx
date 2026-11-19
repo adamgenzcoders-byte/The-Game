@@ -20,6 +20,10 @@ export default function PlayPage() {
   // Game Countdown Clock (From Admin Configured Duration)
   const [remainingTimeSeconds, setRemainingTimeSeconds] = useState(null);
 
+  // Clue 2 Reveal Modal & State (For Level 1 Engineers)
+  const [showClue2Modal, setShowClue2Modal] = useState(false);
+  const [revealingClue2, setRevealingClue2] = useState(false);
+
   // Announcement Pop-up State
   const [dismissedAnnouncementAt, setDismissedAnnouncementAt] = useState(null);
   const lastAlertAtRef = useRef(null);
@@ -303,6 +307,36 @@ export default function PlayPage() {
     }
   }
 
+  async function handleRevealClue2() {
+    const token = localStorage.getItem('device_token');
+    setRevealingClue2(true);
+    try {
+      const res = await fetch('/api/game/clue2', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      const data = await res.json();
+      if (data.success) {
+        setShowClue2Modal(false);
+        // Refresh current level
+        const freshRes = await fetch('/api/game/current', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const freshData = await freshRes.json();
+        setLevelData(freshData);
+      } else {
+        alert(data.error || 'تعذر كشف المعلومة');
+      }
+    } catch (err) {
+      alert('خطأ في الاتصال بالخادم');
+    } finally {
+      setRevealingClue2(false);
+    }
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen flex items-center justify-center p-4 bg-[#0a0c10]">
@@ -500,9 +534,83 @@ export default function PlayPage() {
             </span>
           </div>
 
-          <p className="text-sm font-semibold text-slate-100 leading-relaxed">
-            {level?.clueText}
-          </p>
+          {level?.engineerClues ? (
+            <div className="space-y-3 pt-1">
+              {/* Clue 1: Visible */}
+              <div className="p-3.5 rounded-xl bg-slate-900/90 border border-amber-600/40 space-y-1.5">
+                <div className="flex items-center justify-between text-xs font-bold text-amber-400">
+                  <span className="flex items-center gap-1.5">
+                    <span>🔍</span>
+                    <span>المعلومة الأولى (مكشوفة للبحث):</span>
+                  </span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-950/70 border border-emerald-700/60 text-emerald-300 font-mono text-[10px]">
+                    {level.engineerClues.clue2Revealed ? 'مكافأة الحل: 5 نقاط' : '+10 نقاط كاملة إذا حليتم بها'}
+                  </span>
+                </div>
+                <p className="text-sm font-semibold text-slate-100 leading-relaxed">
+                  {level.engineerClues.clue1}
+                </p>
+              </div>
+
+              {/* Clue 2: Blurred or Revealed */}
+              {level.engineerClues.clue2Revealed ? (
+                <div className="p-3.5 rounded-xl bg-slate-900/90 border border-emerald-600/40 space-y-1.5 animate-fade-in">
+                  <div className="flex items-center justify-between text-xs font-bold text-emerald-400">
+                    <span className="flex items-center gap-1.5">
+                      <span>🔓</span>
+                      <span>المعلومة الثانية (تم كشفها):</span>
+                    </span>
+                    <span className="px-2 py-0.5 rounded bg-amber-950/70 border border-amber-800 text-amber-300 font-mono text-[10px]">
+                      مكافأة الحل: 5 نقاط
+                    </span>
+                  </div>
+                  <p className="text-sm font-semibold text-slate-100 leading-relaxed">
+                    {level.engineerClues.clue2 || level.engineerClues.clue2Preview}
+                  </p>
+                </div>
+              ) : (
+                <div className="relative overflow-hidden p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 space-y-2 select-none">
+                  <div className="flex items-center justify-between text-xs font-bold text-slate-400">
+                    <span className="flex items-center gap-1.5">
+                      <span>🔒</span>
+                      <span>المعلومة الثانية (مخفية ومغبشة):</span>
+                    </span>
+                    <span className="text-[10px] text-amber-400/80">
+                      تكشف عند الطلب (-5 نقاط)
+                    </span>
+                  </div>
+
+                  {/* Blurred Text Preview */}
+                  <p className="text-sm font-semibold text-slate-400 leading-relaxed blur-sm filter select-none">
+                    {level.engineerClues.clue2Preview || 'هذه المعلومة الثانية الخاصة بصفات وتفاصيل المهندس محجوبة حالياً'}
+                  </p>
+
+                  {/* Unlock Button Overlay */}
+                  <div className="absolute inset-0 bg-slate-950/85 backdrop-blur-[2px] flex flex-col items-center justify-center p-3 text-center space-y-2">
+                    <div className="text-xs font-bold text-amber-300 flex items-center gap-1">
+                      <span>⏱️</span>
+                      <span>
+                        {level.engineerClues.remainingTenMinSec > 0
+                          ? `متبقي ${formatDuration(level.engineerClues.remainingTenMinSec)} للحل بـ 10 نقاط`
+                          : 'انتهت مهلة الـ 10 دقائق (الحل بـ 5 نقاط)'}
+                      </span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowClue2Modal(true)}
+                      className="px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-500 active:scale-95 text-slate-950 font-black text-xs transition shadow-md shadow-amber-600/30"
+                    >
+                      👁️ اضغط لكشف المعلومة الثانية (-5 نقاط)
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm font-semibold text-slate-100 leading-relaxed">
+              {level?.clueText}
+            </p>
+          )}
 
           {/* Photo if attached */}
           {level?.photoUrl && (
@@ -767,6 +875,46 @@ export default function PlayPage() {
                 )}
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* CLUE 2 CONFIRMATION MODAL */}
+      {showClue2Modal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in select-none">
+          <div className="w-full max-w-sm p-6 rounded-2xl bg-[#121620] border-2 border-amber-500 shadow-2xl shadow-amber-500/20 text-center space-y-4">
+            <div className="text-5xl">⚠️</div>
+            <h3 className="text-base font-black text-amber-400">
+              هل تريد كشف المعلومة الثانية الآن؟
+            </h3>
+            <div className="p-3.5 rounded-xl bg-slate-900 border border-slate-800 text-xs text-slate-300 space-y-2 text-right leading-relaxed">
+              <p>
+                • قدامكم <strong>10 دقائق</strong> تدوروا فيها بالمعلومة الأولى فقط!
+              </p>
+              <p className="text-emerald-400 font-bold">
+                ✓ لو حليتوها بالمعلومة الأولى بتاخدوا 10 نقاط كاملة 💎
+              </p>
+              <p className="text-rose-400 font-bold">
+                ⚠️ لو كشفتم المعلومة الثانية الآن هتنخفض مكافأة الحل إلى 5 نقاط فقط.
+              </p>
+            </div>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                disabled={revealingClue2}
+                onClick={handleRevealClue2}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-rose-600 hover:bg-rose-500 disabled:opacity-50 text-white font-bold text-xs transition shadow-md shadow-rose-600/30"
+              >
+                {revealingClue2 ? 'جاري الكشف...' : 'نعم، اكشف المعلومة (5 نقاط)'}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowClue2Modal(false)}
+                className="flex-1 py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs transition"
+              >
+                سأبحث بالمعلومة الأولى
+              </button>
+            </div>
           </div>
         </div>
       )}

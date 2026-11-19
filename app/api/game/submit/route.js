@@ -134,11 +134,36 @@ export async function POST(request) {
       );
     }
 
+    // Points Calculation:
+    // Level 1: 10 points if solved with Clue 1 only (within 10 min), 5 points if Clue 2 revealed or after 10 min
+    // Levels 2..10: 10 points per level passed
+    let earnedPoints = 10;
+    if (team.current_level === 1) {
+      const progLvl1 = await queryOne(
+        `SELECT clue2_revealed FROM team_level_progress WHERE team_id = ? AND level_number = 1`,
+        [team.id]
+      );
+      let elapsedSec = 0;
+      if (team.started_at) {
+        elapsedSec = Math.floor((Date.now() - new Date(team.started_at).getTime()) / 1000);
+      }
+      if ((progLvl1 && progLvl1.clue2_revealed) || elapsedSec > 600) {
+        earnedPoints = 5;
+      } else {
+        earnedPoints = 10;
+      }
+    } else {
+      earnedPoints = 10;
+    }
+
+    const currentPoints = team.points !== undefined ? team.points : 100;
+    const newPoints = currentPoints + earnedPoints;
+
     // Check if Beat 10 (Game Finished!)
     if (team.current_level >= 10) {
       await execute(
-        `UPDATE teams SET current_level = 11, finished_at = ? WHERE id = ?`,
-        [nowIso, team.id]
+        `UPDATE teams SET current_level = 11, points = ?, finished_at = ? WHERE id = ?`,
+        [newPoints, nowIso, team.id]
       );
 
       // Check if era storyteller is assigned
@@ -152,33 +177,37 @@ export async function POST(request) {
         await logEvent(team.id, member.id, 'ERA_STORYTELLER_CROWNED', { eraId: team.era_id });
       }
 
-      await logEvent(team.id, member.id, 'TEAM_FINISHED_GAME', { isStoryteller });
+      await logEvent(team.id, member.id, 'TEAM_FINISHED_GAME', { isStoryteller, earnedPoints, totalPoints: newPoints });
 
       return NextResponse.json({
         correct: true,
         finished: true,
         isStoryteller,
+        pointsEarned: earnedPoints,
+        totalPoints: newPoints,
         storyPiece: level.story_text,
         message: isStoryteller
-          ? 'مبروك! فريقكم هو أول من أنهى العصر وتأهل لإلقاء نص كسر اللعنة على المسرح!'
-          : 'أحسنتم! لقد أتممتم جميع مستويات العصر بنجاح!',
+          ? `مبروك! فريقكم هو أول من أنهى العصر وتأهل للمسرح! (+${earnedPoints} نقطة)`
+          : `أحسنتم! لقد أتممتم جميع مستويات العصر بنجاح! (+${earnedPoints} نقطة)`,
       });
     }
 
     // Advance to next level
     const nextLevel = team.current_level + 1;
     await execute(
-      `UPDATE teams SET current_level = ? WHERE id = ?`,
-      [nextLevel, team.id]
+      `UPDATE teams SET current_level = ?, points = ? WHERE id = ?`,
+      [nextLevel, newPoints, team.id]
     );
 
-    await logEvent(team.id, member.id, 'LEVEL_SOLVED', { levelSolved: team.current_level, nextLevel });
+    await logEvent(team.id, member.id, 'LEVEL_SOLVED', { levelSolved: team.current_level, nextLevel, earnedPoints, totalPoints: newPoints });
 
     return NextResponse.json({
       correct: true,
       nextLevel,
+      pointsEarned: earnedPoints,
+      totalPoints: newPoints,
       storyPiece: level.story_text,
-      message: 'إجابة صحيحة! تم فتح الجزء التالي من القصة.',
+      message: `إجابة صحيحة! أحسنتم يا أبطال 🚀 (+${earnedPoints} نقطة)`,
     });
   } catch (err) {
     console.error('Game submit error:', err);
